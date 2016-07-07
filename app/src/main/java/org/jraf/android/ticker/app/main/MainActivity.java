@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
 
     private MainBinding mBinding;
     private float mPixelsPerSecond;
-    private long mStartTimestamp;
     private TwitterClient mTwitterClient;
     private TextQueue mTextQueue;
 
@@ -129,32 +128,6 @@ public class MainActivity extends AppCompatActivity {
             mTwitterClient.stopClient();
         }
     }
-
-//    private void startScroll() {
-//        mStartTimestamp = SystemClock.elapsedRealtime();
-//        ViewCompat.postOnAnimation(mBinding.txtTicker, mScrollRunnable);
-//        setTickerText(getString(R.string.main_fetching));
-//    }
-//
-//    private Runnable mScrollRunnable = new Runnable() {
-//        @Override
-//        public void run() {
-//            long elapsedTime = SystemClock.elapsedRealtime() - mStartTimestamp;
-//            int pixels = (int) (elapsedTime / 1000f * mPixelsPerSecond);
-//            int leftMargin = mBinding.conRoot.getWidth();
-//            mBinding.txtTicker.setTranslationX(leftMargin - pixels);
-//
-//            if (pixels > mBinding.txtTicker.getWidth() + leftMargin) {
-//                mBinding.txtTicker.setTranslationX(leftMargin);
-//
-//                mStartTimestamp = SystemClock.elapsedRealtime();
-//                CharSequence newText = mTextQueue.getNext();
-//                if (newText != null) setTickerText(newText);
-//            }
-//
-//            ViewCompat.postOnAnimation(mBinding.txtTicker, mScrollRunnable);
-//        }
-//    };
 
     private void startScroll() {
         mBinding.txtTicker.post(new Runnable() {
