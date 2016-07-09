@@ -21,7 +21,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 public class TwitterClient {
     private static final long CHECK_PERIOD = TimeUnit.MINUTES.toMillis(3);
-    private static final int RETRIEVE_COUNT = 20;
+    private static final int RETRIEVE_COUNT = 30;
 
     private static final Comparator<Status> STATUS_COMPARATOR = new Comparator<Status>() {
         @Override

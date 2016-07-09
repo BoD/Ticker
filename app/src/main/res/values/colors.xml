@@ -5,6 +5,6 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="windowBackground">#000</color>
-    <color name="tweetAuthor">#26a69a</color>
-    <color name="tweetText">#88bdbdbd</color>
+    <color name="tweetAuthor">#26A69A</color>
+    <color name="tweetText">#BDBDBD</color>
 </resources>

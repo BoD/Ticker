@@ -1,18 +1,21 @@
 package org.jraf.android.ticker.app.main;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.databinding.DataBindingUtil;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.format.DateUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.View;
@@ -31,7 +34,7 @@ import twitter4j.Status;
 import twitter4j.URLEntity;
 
 public class MainActivity extends AppCompatActivity {
-    private static final int QUEUE_SIZE = 20;
+    private static final int QUEUE_SIZE = 30;
 
     private MainBinding mBinding;
     private float mPixelsPerSecond;
@@ -56,16 +59,22 @@ public class MainActivity extends AppCompatActivity {
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LOW_PROFILE);
 
+        // Set the custom font
+        String fontName = "FjallaOne-Regular.ttf";
+        mBinding.txtTicker.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/" + fontName));
+
         adjustFontSizeAndSpeed();
         mTextQueue = new TextQueue(QUEUE_SIZE);
         setTickerText(getString(R.string.main_fetching));
         startScroll();
         startTwitterClient();
+        startDateTime();
     }
 
     @Override
     protected void onDestroy() {
         stopTwitterClient();
+        stopDateTime();
         super.onDestroy();
     }
 
@@ -74,11 +83,13 @@ public class MainActivity extends AppCompatActivity {
         getWindow().getDecorView().getWindowVisibleDisplayFrame(rect);
         int smallSide = Math.min(rect.width(), rect.height());
         int bigSide = Math.max(rect.width(), rect.height());
-        int fontSize = (int) (smallSide / 1.5f);
+
+        // A font size of about ~1 to 1/2 screen small side is a sensible value
+        int fontSize = (int) (smallSide / 2f);
         mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize);
 
-        // A speed of one horizontal screen per second is a sensible value
-        mPixelsPerSecond = bigSide;
+        // A speed of about ~1 to 2 horizontal screens per second is a sensible value
+        mPixelsPerSecond = bigSide * 1.1f;
         Log.d("mPixelsPerSecond=%s", mPixelsPerSecond);
     }
 
@@ -89,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         ViewGroup.LayoutParams layoutParams = mBinding.txtTicker.getLayoutParams();
         mBinding.txtTicker.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         layoutParams.width = mBinding.txtTicker.getMeasuredWidth();
-        Log.d("text width=%s", layoutParams.width);
         mBinding.txtTicker.requestLayout();
     }
 
@@ -129,18 +139,38 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    private Runnable mDateTimeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            long now = System.currentTimeMillis();
+            String date =
+                    DateUtils.formatDateTime(MainActivity.this, now, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_YEAR);
+            String time =
+                    DateUtils.formatDateTime(MainActivity.this, now, DateUtils.FORMAT_SHOW_TIME);
+            mTextQueue.addUrgent(date, time);
+
+            startDateTime();
+        }
+    };
+
+    private void startDateTime() {
+        mBinding.txtTicker.postDelayed(mDateTimeRunnable, TimeUnit.MINUTES.toMillis(1));
+    }
+
+    private void stopDateTime() {
+        mBinding.txtTicker.removeCallbacks(mDateTimeRunnable);
+    }
+
+
     private void startScroll() {
         mBinding.txtTicker.post(new Runnable() {
             @Override
             public void run() {
                 int margin = mBinding.conRoot.getWidth();
-                Log.d("margin=%s", margin);
                 int textWidth = mBinding.txtTicker.getWidth();
-                Log.d("textWidth=%s", textWidth);
                 int totalWidth = textWidth + margin;
                 int animationDuration = (int) (totalWidth / mPixelsPerSecond * 1000f);
-                Log.d("animationDuration=%s", animationDuration);
-
                 mBinding.txtTicker.setTranslationX(margin);
                 mBinding.txtTicker.animate().setInterpolator(new LinearInterpolator()).translationX(-textWidth)
                         .setDuration(animationDuration).setListener(mAnimatorListener);
