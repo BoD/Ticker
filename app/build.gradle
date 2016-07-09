@@ -4,12 +4,12 @@ android {
     compileSdkVersion 23
     buildToolsVersion '24.0.0'
     defaultConfig {
-        applicationId "org.jraf.android.ticker"
+        applicationId 'org.jraf.android.ticker'
         minSdkVersion 14
         targetSdkVersion 24
         versionCode 1
         versionName '1.0.0'
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -32,7 +32,9 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.android.support:design:24.0.0'
     testCompile 'junit:junit:4.12'
     compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
+    compile 'com.google.android.gms:play-services-contextmanager:9.2.0'
 }

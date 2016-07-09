@@ -3,14 +3,21 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
-    <application android:hardwareAccelerated="false"
+    <application
         android:name=".app.Application"
         android:allowBackup="true"
+        android:hardwareAccelerated="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data
+            android:name="com.google.android.awareness.API_KEY"
+            android:value="@string/apiKey_google_awareness" />
+
         <activity
             android:name=".app.main.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
