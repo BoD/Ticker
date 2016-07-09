@@ -126,11 +126,11 @@ public class WeatherManager implements GoogleApiClient.ConnectionCallbacks, Goog
                     break;
 
                 case Weather.CONDITION_STORMY:
-                    res.append('☈');
+                    res.append('\u26C8');
                     break;
 
                 case Weather.CONDITION_WINDY:
-                    res.append("\uD83C\uDF2C");
+                    res.append("\uD83D\uDCA8");
                     break;
             }
         }

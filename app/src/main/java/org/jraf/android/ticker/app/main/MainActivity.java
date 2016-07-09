@@ -215,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             mDateTimeWeatherHandler = new Handler(thread.getLooper());
         }
         mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.MINUTES.toMillis(1));
+//        mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.SECONDS.toMillis(5));
     }
 
     private void stopDateTimeWeather() {
