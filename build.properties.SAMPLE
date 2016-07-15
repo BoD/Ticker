@@ -1,0 +1,12 @@
+versionName=1.0.0
+signingStoreFile=/home/jsmith/devkeys/android_release_key.keystore
+signingStorePassword=changeme
+signingKeyAlias=android_release_key
+signingKeyPassword=changeme
+deployFolder=/home/deployed/public
+apiKeyFabric=aaabbbcccddd000111222333444
+apiKeyGoogleAwareness=aaabbbcccddd000111222333444
+apiKeyTwitterOauthConsumerKey=aaabbbcccddd000111222333444
+apiKeyTwitterOauthConsumerSecret=aaabbbcccddd000111222333444
+apiKeyTwitterOauthAccessToken=aaabbbcccddd000111222333444
+apiKeyTwitterOauthAccessTokenSecret=aaabbbcccddd000111222333444

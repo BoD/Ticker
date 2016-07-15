@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Ticker</string>
+
+    <string name="main_fetching">Fetching…</string>
+    <string name="main_weather">%1$.1fºC %2$s</string>
+    <string name="main_permissionNotGranted">Permission was not granted!</string>
+</resources>

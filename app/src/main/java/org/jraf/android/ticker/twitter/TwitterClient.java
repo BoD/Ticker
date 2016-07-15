@@ -62,10 +62,10 @@ public class TwitterClient {
     private Twitter getTwitter() {
         if (mTwitter == null) {
             ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-            configurationBuilder.setDebugEnabled(true).setOAuthConsumerKey(mContext.getString(R.string.apiKey_twitter_oauth_consumerKey));
-            configurationBuilder.setOAuthConsumerSecret(mContext.getString(R.string.apiKey_twitter_oauth_consumerSecret));
-            configurationBuilder.setOAuthAccessToken(mContext.getString(R.string.apiKey_twitter_oauth_accessToken));
-            configurationBuilder.setOAuthAccessTokenSecret(mContext.getString(R.string.apiKey_twitter_oauth_accessTokenSecret));
+            configurationBuilder.setDebugEnabled(true).setOAuthConsumerKey(mContext.getString(R.string.apiKeyTwitterOauthConsumerKey));
+            configurationBuilder.setOAuthConsumerSecret(mContext.getString(R.string.apiKeyTwitterOauthConsumerSecret));
+            configurationBuilder.setOAuthAccessToken(mContext.getString(R.string.apiKeyTwitterOauthAccessToken));
+            configurationBuilder.setOAuthAccessTokenSecret(mContext.getString(R.string.apiKeyTwitterOauthAccessTokenSecret));
             TwitterFactory twitterFactory = new TwitterFactory(configurationBuilder.build());
             mTwitter = twitterFactory.getInstance();
         }

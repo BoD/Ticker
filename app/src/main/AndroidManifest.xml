@@ -14,9 +14,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <!-- Play Services Awareness api key -->
         <meta-data
             android:name="com.google.android.awareness.API_KEY"
-            android:value="@string/apiKey_google_awareness" />
+            android:value="${apiKeyGoogleAwareness}" />
+
+        <!-- Crashlytics api key -->
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="${apiKeyFabric}" />
 
         <activity
             android:name=".app.main.MainActivity"
