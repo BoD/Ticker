@@ -1,4 +1,4 @@
-package org.jraf.android.ticker.app.main;
+package org.jraf.android.ticker.util.emoji;
 
 import java.util.HashMap;
 import java.util.Map;

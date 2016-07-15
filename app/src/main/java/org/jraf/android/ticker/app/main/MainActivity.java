@@ -35,6 +35,7 @@ import org.jraf.android.ticker.R;
 import org.jraf.android.ticker.databinding.MainBinding;
 import org.jraf.android.ticker.twitter.StatusListener;
 import org.jraf.android.ticker.twitter.TwitterClient;
+import org.jraf.android.ticker.util.emoji.EmojiUtil;
 import org.jraf.android.ticker.weather.WeatherManager;
 import org.jraf.android.ticker.weather.WeatherResult;
 import org.jraf.android.util.log.Log;
