@@ -5,3 +5,5 @@ modules.xml
 vcs.xml
 encodings.xml
 inspectionProfiles
+.name
+runConfigurations.xml
