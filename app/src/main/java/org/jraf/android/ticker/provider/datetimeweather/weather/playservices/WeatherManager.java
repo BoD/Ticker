@@ -1,4 +1,4 @@
-package org.jraf.android.ticker.provider.datetimeweather.weather;
+package org.jraf.android.ticker.provider.datetimeweather.weather.playservices;
 
 import java.util.concurrent.TimeUnit;
 
@@ -83,11 +83,11 @@ public class WeatherManager implements GoogleApiClient.ConnectionCallbacks, Goog
     }
 
     @Nullable
-    public org.jraf.android.ticker.provider.datetimeweather.weather.WeatherResult getWeather(TemperatureUnit unit) {
+    public org.jraf.android.ticker.provider.datetimeweather.weather.playservices.WeatherResult getWeather(TemperatureUnit unit) {
         Weather weather = getWeather();
         if (weather == null) return null;
-        org.jraf.android.ticker.provider.datetimeweather.weather.WeatherResult res =
-                new org.jraf.android.ticker.provider.datetimeweather.weather.WeatherResult();
+        org.jraf.android.ticker.provider.datetimeweather.weather.playservices.WeatherResult res =
+                new org.jraf.android.ticker.provider.datetimeweather.weather.playservices.WeatherResult();
         res.temperature = weather.getTemperature(unit == TemperatureUnit.CELCIUS ? Weather.CELSIUS : Weather.FAHRENHEIT);
         res.conditionsSymbols = getConditionsSymbols(weather);
         return res;

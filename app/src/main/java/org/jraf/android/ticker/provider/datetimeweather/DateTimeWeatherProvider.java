@@ -10,8 +10,8 @@ import android.text.format.DateUtils;
 import org.jraf.android.ticker.R;
 import org.jraf.android.ticker.provider.Provider;
 import org.jraf.android.ticker.provider.ProviderException;
-import org.jraf.android.ticker.provider.datetimeweather.weather.WeatherManager;
-import org.jraf.android.ticker.provider.datetimeweather.weather.WeatherResult;
+import org.jraf.android.ticker.provider.datetimeweather.playservices.WeatherManager;
+import org.jraf.android.ticker.provider.datetimeweather.weather.playservices.WeatherResult;
 import org.jraf.android.ticker.provider.manager.ProviderManagerCallbacks;
 
 public class DateTimeWeatherProvider implements Provider {
