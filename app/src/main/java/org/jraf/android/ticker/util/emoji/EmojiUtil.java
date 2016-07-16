@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -27,10 +28,17 @@ public class EmojiUtil {
         DRAWABLE_MAP.put("☃", R.drawable.emoji_u2603);
         DRAWABLE_MAP.put("\u26C8", R.drawable.emoji_u26c8);
         DRAWABLE_MAP.put("\uD83D\uDCA8", R.drawable.emoji_u1f4a8);
+        DRAWABLE_MAP.put("\uD83C\uDF19", R.drawable.emoji_u1f319);
+        DRAWABLE_MAP.put("\uD83C\uDF21", R.drawable.emoji_u1f321);
+        DRAWABLE_MAP.put("\uD83C\uDF24", R.drawable.emoji_u1f324);
     }
 
     public static Spannable replaceEmojis(CharSequence src, TextView textView) {
         SpannableStringBuilder res = new SpannableStringBuilder(src);
+
+        // Do not do anything if version >= Android 4.4
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) return res;
+
         for (Map.Entry<String, Integer> entry : DRAWABLE_MAP.entrySet()) {
             int index = -1;
             String key = entry.getKey();

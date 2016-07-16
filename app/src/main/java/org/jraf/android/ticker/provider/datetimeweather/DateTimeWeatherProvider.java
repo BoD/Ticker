@@ -10,8 +10,8 @@ import android.text.format.DateUtils;
 import org.jraf.android.ticker.R;
 import org.jraf.android.ticker.provider.Provider;
 import org.jraf.android.ticker.provider.ProviderException;
-import org.jraf.android.ticker.provider.datetimeweather.playservices.WeatherManager;
-import org.jraf.android.ticker.provider.datetimeweather.weather.playservices.WeatherResult;
+import org.jraf.android.ticker.provider.datetimeweather.weather.forecastio.ForecastIoClient;
+import org.jraf.android.ticker.provider.datetimeweather.weather.forecastio.WeatherResult;
 import org.jraf.android.ticker.provider.manager.ProviderManagerCallbacks;
 
 public class DateTimeWeatherProvider implements Provider {
@@ -46,14 +46,21 @@ public class DateTimeWeatherProvider implements Provider {
                     DateUtils.formatDateTime(mContext, now, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_YEAR);
             String time =
                     DateUtils.formatDateTime(mContext, now, DateUtils.FORMAT_SHOW_TIME);
-            mCallbacks.addUrgent(date, time);
 
             // Weather
-            WeatherManager weatherManager = WeatherManager.get(mContext);
-            WeatherResult weatherResult = weatherManager.getWeather(WeatherManager.TemperatureUnit.CELCIUS);
-            if (weatherResult != null) {
-                String weatherStr = mContext.getString(R.string.main_weather, weatherResult.temperature, weatherResult.conditionsSymbols);
-                mCallbacks.addUrgent(weatherStr);
+            ForecastIoClient forecastIoClient = ForecastIoClient.get(mContext);
+            WeatherResult weatherResult = forecastIoClient.getWeather();
+
+            // Add everything urgently at once
+            if (weatherResult == null) {
+                mCallbacks.addUrgent(date, time);
+            } else {
+                String weatherNow = mContext.getString(R.string.weather_now,
+                        weatherResult.todayWeatherCondition.getSymbol(),
+                        weatherResult.currentTemperature);
+                String weatherMin = mContext.getString(R.string.weather_min, weatherResult.todayMinTemperature);
+                String weatherMax = mContext.getString(R.string.weather_max, weatherResult.todayMaxTemperature);
+                mCallbacks.addUrgent(date, time, weatherNow, weatherMin, weatherMax);
             }
 
             startDateTimeWeather();
