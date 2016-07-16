@@ -1,4 +1,4 @@
-package org.jraf.android.ticker.twitter;
+package org.jraf.android.ticker.provider.twitter;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,7 +19,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 
-public class TwitterClient {
+class TwitterClient {
     private static final long CHECK_PERIOD = TimeUnit.MINUTES.toMillis(3);
     private static final int RETRIEVE_COUNT = 30;
 
@@ -35,26 +35,26 @@ public class TwitterClient {
     private ScheduledExecutorService mScheduledExecutorService;
     private Listeners<StatusListener> mListeners = new Listeners<>();
 
-    public static TwitterClient getInstance(Context context) {
+    static TwitterClient getInstance(Context context) {
         TwitterClient res = new TwitterClient();
         res.mContext = context.getApplicationContext();
         return res;
     }
 
-    public void addListener(StatusListener listener) {
+    void addListener(StatusListener listener) {
         mListeners.add(listener);
     }
 
-    public void removeListener(StatusListener listener) {
+    void removeListener(StatusListener listener) {
         mListeners.remove(listener);
     }
 
-    public void startClient() {
+    void startClient() {
         mScheduledExecutorService = Executors.newScheduledThreadPool(1);
         mScheduledExecutorService.scheduleAtFixedRate(new CheckForNewTweetsRunnable(), 0, CHECK_PERIOD, TimeUnit.MILLISECONDS);
     }
 
-    public void stopClient() {
+    void stopClient() {
         if (mScheduledExecutorService != null) mScheduledExecutorService.shutdownNow();
         mScheduledExecutorService = null;
     }

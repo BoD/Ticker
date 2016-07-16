@@ -1,4 +1,4 @@
-package org.jraf.android.ticker.twitter;
+package org.jraf.android.ticker.provider.twitter;
 
 import java.util.List;
 

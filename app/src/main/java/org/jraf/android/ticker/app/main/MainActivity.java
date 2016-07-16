@@ -1,9 +1,5 @@
 package org.jraf.android.ticker.app.main;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
-
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -13,18 +9,11 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.format.DateUtils;
-import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,16 +22,10 @@ import android.view.animation.LinearInterpolator;
 
 import org.jraf.android.ticker.R;
 import org.jraf.android.ticker.databinding.MainBinding;
-import org.jraf.android.ticker.twitter.StatusListener;
-import org.jraf.android.ticker.twitter.TwitterClient;
+import org.jraf.android.ticker.message.MessageQueue;
+import org.jraf.android.ticker.provider.manager.ProviderManager;
 import org.jraf.android.ticker.util.emoji.EmojiUtil;
-import org.jraf.android.ticker.weather.WeatherManager;
-import org.jraf.android.ticker.weather.WeatherResult;
 import org.jraf.android.util.log.Log;
-
-import twitter4j.MediaEntity;
-import twitter4j.Status;
-import twitter4j.URLEntity;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int QUEUE_SIZE = 30;
@@ -50,9 +33,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     private MainBinding mBinding;
     private float mPixelsPerSecond;
-    private TwitterClient mTwitterClient;
-    private TextQueue mTextQueue;
-    private Handler mDateTimeWeatherHandler;
+    private MessageQueue mTextQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,19 +58,33 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         mBinding.txtTicker.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/" + fontName));
 
         adjustFontSizeAndSpeed();
-        mTextQueue = new TextQueue(QUEUE_SIZE);
+        mTextQueue = new MessageQueue(QUEUE_SIZE);
         setTickerText(getString(R.string.main_fetching));
 
         startScroll();
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         boolean hasPermissions = checkPermissions();
-        if (hasPermissions) startClients();
+        if (hasPermissions) startListeners();
     }
 
-    private void startClients() {
-        startTwitterClient();
-        startDateTimeWeather();
+    private void startListeners() {
+        ProviderManager.get().startListeners(this, mTextQueue);
     }
+
+    @Override
+    protected void onPause() {
+        ProviderManager.get().stopListeners();
+        super.onPause();
+    }
+
+
+    //--------------------------------------------------------------------------
+    // region Permissions.
+    //--------------------------------------------------------------------------
 
     private boolean checkPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -105,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             case REQUEST_PERMISSION_LOCATION:
                 if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
-                    startClients();
+                    startListeners();
                 } else {
                     Log.w("Permission not granted: show a snackbar");
                     Snackbar.make(mBinding.getRoot(), R.string.main_permissionNotGranted, Snackbar.LENGTH_INDEFINITE).show();
@@ -118,12 +113,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        stopTwitterClient();
-        stopDateTimeWeather();
-        super.onDestroy();
-    }
+    // endregion
+
 
     private void adjustFontSizeAndSpeed() {
         Rect rect = new Rect();
@@ -150,79 +141,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         layoutParams.width = mBinding.txtTicker.getMeasuredWidth();
         mBinding.txtTicker.requestLayout();
     }
-
-    private void startTwitterClient() {
-        mTwitterClient = TwitterClient.getInstance(this);
-        mTwitterClient.addListener(new StatusListener() {
-            @Override
-            public void onNewStatuses(List<Status> statuses) {
-                for (Status status : statuses) {
-                    String screenName = status.getUser().getScreenName();
-                    String statusText = status.getText();
-
-                    // Remove all urls
-                    for (URLEntity urlEntity : status.getURLEntities()) {
-                        statusText = statusText.replaceAll(Pattern.quote(urlEntity.getURL()), "");
-                    }
-                    for (MediaEntity mediaEntity : status.getMediaEntities()) {
-                        statusText = statusText.replaceAll(Pattern.quote(mediaEntity.getURL()), "");
-                    }
-
-                    // Add author
-                    String author = "@" + screenName;
-                    statusText = author + " " + statusText;
-                    SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder(statusText);
-                    ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(ResourcesCompat.getColor(getResources(), R.color.tweetAuthor, null));
-                    spannableStringBuilder.setSpan(foregroundColorSpan, 0, author.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                    mTextQueue.add(spannableStringBuilder);
-                }
-            }
-        });
-        mTwitterClient.startClient();
-    }
-
-    private void stopTwitterClient() {
-        if (mTwitterClient != null) {
-            mTwitterClient.stopClient();
-        }
-    }
-
-
-    private Runnable mDateTimeWeatherRunnable = new Runnable() {
-        @Override
-        public void run() {
-            long now = System.currentTimeMillis();
-            String date =
-                    DateUtils.formatDateTime(MainActivity.this, now, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_WEEKDAY | DateUtils.FORMAT_SHOW_YEAR);
-            String time =
-                    DateUtils.formatDateTime(MainActivity.this, now, DateUtils.FORMAT_SHOW_TIME);
-            mTextQueue.addUrgent(date, time);
-
-            WeatherManager weatherManager = WeatherManager.get(MainActivity.this);
-            WeatherResult weatherResult = weatherManager.getWeather(WeatherManager.TemperatureUnit.CELCIUS);
-            if (weatherResult != null) {
-                String weatherStr = getString(R.string.main_weather, weatherResult.temperature, weatherResult.conditionsSymbols);
-                mTextQueue.addUrgent(weatherStr);
-            }
-
-            startDateTimeWeather();
-        }
-    };
-
-    private void startDateTimeWeather() {
-        if (mDateTimeWeatherHandler == null) {
-            HandlerThread thread = new HandlerThread("DateTimeWeather");
-            thread.start();
-            mDateTimeWeatherHandler = new Handler(thread.getLooper());
-        }
-        mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.MINUTES.toMillis(1));
-//        mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.SECONDS.toMillis(5));
-    }
-
-    private void stopDateTimeWeather() {
-        mDateTimeWeatherHandler.removeCallbacks(mDateTimeWeatherRunnable);
-    }
-
 
     private void startScroll() {
         mBinding.txtTicker.post(new Runnable() {

@@ -1,4 +1,4 @@
-package org.jraf.android.ticker.app.main;
+package org.jraf.android.ticker.message;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -6,13 +6,13 @@ import java.util.Arrays;
 
 import android.support.annotation.Nullable;
 
-public class TextQueue {
+public class MessageQueue implements MessageQueueable {
     private final int mSize;
     private final ArrayList<CharSequence> mList;
     private final ArrayDeque<CharSequence> mUrgentQueue;
     private int mCurrentIndex = 0;
 
-    public TextQueue(int size) {
+    public MessageQueue(int size) {
         mSize = size;
         mList = new ArrayList<>(size * 2);
         mUrgentQueue = new ArrayDeque<>(size * 2);
@@ -32,8 +32,9 @@ public class TextQueue {
         return res;
     }
 
-    public synchronized void add(CharSequence... text) {
-        mList.addAll(Arrays.asList(text));
+    @Override
+    public synchronized void add(CharSequence... messages) {
+        mList.addAll(Arrays.asList(messages));
 
         // Discard old items if any
         int elementsToDiscard = 0;
@@ -47,7 +48,8 @@ public class TextQueue {
         if (mCurrentIndex < 0) mCurrentIndex = 0;
     }
 
-    public synchronized void addUrgent(CharSequence... text) {
-        mUrgentQueue.addAll(Arrays.asList(text));
+    @Override
+    public synchronized void addUrgent(CharSequence... messages) {
+        mUrgentQueue.addAll(Arrays.asList(messages));
     }
 }
