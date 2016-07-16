@@ -74,6 +74,8 @@ public class DateTimeWeatherProvider implements Provider {
             mDateTimeWeatherHandler = new Handler(thread.getLooper());
         }
         mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.MINUTES.toMillis(1));
+//        mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.SECONDS.toMillis(10));
+
     }
 
     private void stopDateTimeWeather() {

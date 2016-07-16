@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.v4.content.res.ResourcesCompat;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -36,8 +35,8 @@ public class EmojiUtil {
     public static Spannable replaceEmojis(CharSequence src, TextView textView) {
         SpannableStringBuilder res = new SpannableStringBuilder(src);
 
-        // Do not do anything if version >= Android 4.4
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) return res;
+//        // Do not do anything if version >= Android 4.4
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) return res;
 
         for (Map.Entry<String, Integer> entry : DRAWABLE_MAP.entrySet()) {
             int index = -1;

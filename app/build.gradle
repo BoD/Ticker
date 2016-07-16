@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId 'org.jraf.android.ticker'
-        minSdkVersion 16
+        minSdkVersion 15
         targetSdkVersion targetSdkVersion
         versionCode buildNumber
         versionName buildProperties.versionName

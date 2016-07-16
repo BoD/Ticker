@@ -6,5 +6,5 @@
 
     <color name="windowBackground">#000</color>
     <color name="tweetAuthor">#26A69A</color>
-    <color name="tweetText">#BDBDBD</color>
+    <color name="tweetText">#BDBD7D</color>
 </resources>
