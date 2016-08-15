@@ -29,6 +29,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.pm.PackageManager;
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -158,6 +159,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void setTickerText(CharSequence tickerText) {
         tickerText = EmojiUtil.replaceEmojis(tickerText, mBinding.txtTicker);
         mBinding.txtTicker.setText(tickerText);
+
+        // Change the color randomly
+        float[] hsv = new float[3];
+        hsv[0] = (float) (Math.random() * 360f);
+        hsv[1] = .5f;
+        hsv[2] = .75f;
+        int color = Color.HSVToColor(hsv);
+        mBinding.txtTicker.setTextColor(color);
 
         // Change the text size
         ViewGroup.LayoutParams layoutParams = mBinding.txtTicker.getLayoutParams();
