@@ -71,7 +71,7 @@ public class TwitterProvider implements Provider {
                         statusText = statusText.replaceAll(Pattern.quote(mediaEntity.getURL()), "");
                     }
 
-                    // Removing trailing ':' (usually left over after removing urls)
+                    // Remove trailing ':' (usually left over after removing urls)
                     if (statusText.endsWith(":")) {
                         statusText = statusText.substring(0, statusText.length() - 1);
                     }
