@@ -101,10 +101,10 @@ dependencies {
     compile "com.android.support:design:${supportLibVersion}"
     compile "com.google.android.gms:play-services-contextmanager:${playServicesVersion}"
     compile "com.google.android.gms:play-services-location:${playServicesVersion}"
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.7@aar') { transitive = true; }
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') { transitive = true; }
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
     apt 'org.jraf:prefs-compiler:1.0.1'
     compile 'org.jraf:prefs:1.0.1'
     compile 'org.twitter4j:twitter4j-core:4.0.4'
-    compile 'com.github.dvdme:ForecastIOLib:1.5.1'
+    compile 'com.github.dvdme:ForecastIOLib:1.5.3'
 }
