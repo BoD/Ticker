@@ -64,17 +64,17 @@ public class LocationUtil {
             return null;
         }
 
-        final AtomicBoolean connectionFailed = new AtomicBoolean(false);
+        final AtomicBoolean connected = new AtomicBoolean(false);
         GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(Bundle params) {
                 Log.d("params=%s", params);
+                connected.set(true);
             }
 
             @Override
             public void onConnectionSuspended(int reason) {
                 Log.d("reason=%s", reason);
-                connectionFailed.set(true);
             }
         };
 
@@ -92,7 +92,10 @@ public class LocationUtil {
                 .build();
         googleApiClient.blockingConnect();
 
-        if (connectionFailed.get()) return null;
+        if (!connected.get()) {
+            Log.d("Could not connect to Play Services: returning null");
+            return null;
+        }
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
         if (lastLocation != null && System.currentTimeMillis() - lastLocation.getTime() < LAST_LOCATION_MAX_AGE_MS) {
             Log.d("Got last location: %s", lastLocation);
