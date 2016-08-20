@@ -7,8 +7,8 @@ android {
     buildToolsVersion project.buildToolsVersion
 
     defaultConfig {
-        applicationId 'org.jraf.android.ticker'
-        minSdkVersion 15
+        applicationId 'org.jraf.android.ticker.notificationbroadcaster'
+        minSdkVersion 19
         targetSdkVersion targetSdkVersion
         versionCode buildNumber
         versionName buildProperties.versionName
@@ -24,13 +24,6 @@ android {
 
         // Useful for api keys in the manifest (Maps, Crashlytics, ...)
         manifestPlaceholders = buildProperties
-
-        // More api keys
-        resValue 'string', 'apiKeyTwitterOauthConsumerKey', buildProperties.apiKeyTwitterOauthConsumerKey
-        resValue 'string', 'apiKeyTwitterOauthConsumerSecret', buildProperties.apiKeyTwitterOauthConsumerSecret
-        resValue 'string', 'apiKeyTwitterOauthAccessToken', buildProperties.apiKeyTwitterOauthAccessToken
-        resValue 'string', 'apiKeyTwitterOauthAccessTokenSecret', buildProperties.apiKeyTwitterOauthAccessTokenSecret
-        resValue 'string', 'apiKeyForecastIo', buildProperties.apiKeyForecastIo
 
         vectorDrawables.useSupportLibrary = true
     }
@@ -94,17 +87,6 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
 
-    compile "com.android.support:recyclerview-v7:${supportLibVersion}"
-    compile "com.android.support:cardview-v7:${supportLibVersion}"
-    compile "com.android.support:preference-v7:${supportLibVersion}"
-    compile "com.android.support:preference-v14:${supportLibVersion}"
-    compile "com.android.support:design:${supportLibVersion}"
-    compile "com.google.android.gms:play-services-contextmanager:${playServicesVersion}"
-    compile "com.google.android.gms:play-services-location:${playServicesVersion}"
     compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') { transitive = true; }
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
-    apt 'org.jraf:prefs-compiler:1.0.1'
-    compile 'org.jraf:prefs:1.0.1'
-    compile 'org.twitter4j:twitter4j-core:4.0.4'
-    compile 'com.github.dvdme:ForecastIOLib:1.5.3'
 }

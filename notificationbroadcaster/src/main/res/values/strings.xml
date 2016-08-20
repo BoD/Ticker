@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">TickerNotificationBroadcaster</string>
+    <string name="notificationService_messageText">%1$s: %2$s</string>
+</resources>
