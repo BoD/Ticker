@@ -53,7 +53,7 @@ import org.jraf.android.ticker.util.emoji.EmojiUtil;
 import org.jraf.android.util.log.Log;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
-    private static final int QUEUE_SIZE = 30;
+    private static final int QUEUE_SIZE = 40;
     private static final int REQUEST_PERMISSION_LOCATION = 0;
 
     private MainBinding mBinding;
@@ -163,9 +163,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         // Change the color randomly
         float[] hsv = new float[3];
         hsv[0] = (float) (Math.random() * 360f);
-        hsv[1] = .5f;
+        hsv[1] = .75f;
         hsv[2] = .75f;
         int color = Color.HSVToColor(hsv);
+//        Log.d("Hue: %d - Color: #%02x%02x%02x", (int) hsv[0], Color.red(color), Color.green(color), Color.blue(color));
         mBinding.txtTicker.setTextColor(color);
 
         // Change the text size

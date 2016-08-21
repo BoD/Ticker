@@ -72,6 +72,7 @@ public class TwitterProvider implements Provider {
                     }
 
                     // Remove trailing ':' (usually left over after removing urls)
+                    statusText = statusText.trim();
                     if (statusText.endsWith(":")) {
                         statusText = statusText.substring(0, statusText.length() - 1);
                     }
