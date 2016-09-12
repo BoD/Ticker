@@ -48,8 +48,13 @@ public class NotificationListenerService extends android.service.notification.No
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         super.onNotificationPosted(sbn);
-        final String title = sbn.getNotification().extras.getString(Notification.EXTRA_TITLE);
-        final String text = sbn.getNotification().extras.getCharSequence(Notification.EXTRA_TEXT, "").toString();
+        Notification notification = sbn.getNotification();
+        if ((notification.flags & Notification.FLAG_ONGOING_EVENT) == Notification.FLAG_ONGOING_EVENT) {
+            // Ignore ongoing notifications
+            return;
+        }
+        final String title = notification.extras.getString(Notification.EXTRA_TITLE);
+        final String text = notification.extras.getCharSequence(Notification.EXTRA_TEXT, "").toString();
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
