@@ -22,19 +22,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jraf.android.ticker.app;
+package org.jraf.android.ticker.provider
 
-import org.jraf.android.util.log.Log;
-
-public class Application extends android.app.Application {
-    private static final String TAG = "Ticker";
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        // Log
-        Log.init(this, TAG);
-    }
-
-}
+class ProviderException(cause: Throwable) : Exception(cause)

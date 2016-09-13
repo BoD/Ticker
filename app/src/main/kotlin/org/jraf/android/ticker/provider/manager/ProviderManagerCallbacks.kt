@@ -22,16 +22,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jraf.android.ticker.provider;
+package org.jraf.android.ticker.provider.manager
 
-import android.content.Context;
+import org.jraf.android.ticker.message.MessageQueueable
+import org.jraf.android.ticker.provider.ProviderException
 
-import org.jraf.android.ticker.provider.manager.ProviderManagerCallbacks;
+interface ProviderManagerCallbacks : MessageQueueable {
+    fun onException(e: ProviderException)
 
-public interface Provider {
-    void init(Context context, ProviderManagerCallbacks callbacks) throws ProviderException;
+    fun onStart()
 
-    void start() throws ProviderException;
-
-    void stop();
+    fun onStop()
 }

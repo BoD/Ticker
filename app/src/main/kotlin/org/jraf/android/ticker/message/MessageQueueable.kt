@@ -22,15 +22,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jraf.android.ticker.provider.manager;
+package org.jraf.android.ticker.message
 
-import org.jraf.android.ticker.message.MessageQueueable;
-import org.jraf.android.ticker.provider.ProviderException;
+interface MessageQueueable {
+    fun add(vararg messages: CharSequence)
 
-public interface ProviderManagerCallbacks extends MessageQueueable {
-    void onException(ProviderException e);
-
-    void onStart();
-
-    void onStop();
+    fun addUrgent(vararg messages: CharSequence)
 }

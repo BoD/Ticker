@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'io.fabric'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion project.compileSdkVersion
@@ -62,6 +63,10 @@ android {
     dataBinding {
         enabled = true
     }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
 
 android.applicationVariants.all { variant ->
@@ -107,4 +112,5 @@ dependencies {
     compile 'org.jraf:prefs:1.0.1'
     compile 'org.twitter4j:twitter4j-core:4.0.4'
     compile 'com.github.dvdme:ForecastIOLib:1.5.3'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
 }
