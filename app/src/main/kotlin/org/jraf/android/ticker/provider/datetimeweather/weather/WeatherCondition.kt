@@ -22,16 +22,28 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jraf.android.ticker.provider.datetimeweather.weather.forecastio;
+package org.jraf.android.ticker.provider.datetimeweather.weather
 
-public class WeatherResult {
-    public long timestamp;
-    public float currentTemperature;
-    public float todayMinTemperature;
-    public float todayMaxTemperature;
-    public WeatherCondition todayWeatherCondition;
+enum class WeatherCondition constructor(private val mCode: String, val symbol: String) {
+    UNKNOWN("unknown", "?"),
+    CLEAR_DAY("clear-day", "☀"),
+    CLEAR_NIGHT("clear-night", "\uD83C\uDF19"),
+    RAIN("rain", "☂"),
+    SNOW("snow", "☃"),
+    SLEET("sleet", "☃"),
+    WIND("wind", "\uD83D\uDCA8"),
+    FOG("fog", "\uD83C\uDF2B"),
+    CLOUDY("cloudy", "☁"),
+    PARTLY_CLOUDY_DAY("partly-cloudy-day", "\uD83C\uDF24"),
+    PARTLY_CLOUDY_NIGHT("partly-cloudy-night", "☁\uD83C\uDF19");
 
-    public WeatherResult() {
-        timestamp = System.currentTimeMillis();
+    companion object {
+        fun fromCode(code: String): WeatherCondition {
+            for (weatherCondition in values()) {
+                if (weatherCondition.mCode == code) return weatherCondition
+            }
+
+            return UNKNOWN
+        }
     }
 }

@@ -22,12 +22,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jraf.android.ticker.provider.twitter;
+package org.jraf.android.ticker.provider.twitter
 
-import java.util.List;
+import twitter4j.Status
 
-import twitter4j.Status;
-
-public interface StatusListener {
-    void onNewStatuses(List<Status> statuses);
+internal interface StatusListener {
+    fun onNewStatuses(statuses: List<Status>)
 }

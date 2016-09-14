@@ -22,9 +22,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jraf.android.ticker.provider.datetimeweather.weather.playservices;
+package org.jraf.android.ticker.provider.datetimeweather.weather
 
-public class WeatherResult {
-    public float temperature;
-    public String conditionsSymbols;
+data class WeatherResult(val currentTemperature: Float, val todayMinTemperature: Float, val todayMaxTemperature: Float, val todayWeatherCondition: WeatherCondition) {
+    val timestamp: Long = System.currentTimeMillis()
 }
