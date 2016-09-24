@@ -87,6 +87,6 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') { transitive = true; }
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.4@aar') { transitive = true; }
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
 }

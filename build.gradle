@@ -4,14 +4,21 @@ import java.text.SimpleDateFormat
 ext.globalProjectName = 'Ticker'
 
 buildscript {
-    ext.kotlinVersion = '1.0.3'
+    // Versions used across modules
+    ext.androidGradlePluginVersion = '2.2.0'
+    ext.kotlinVersion = '1.0.4'
+    ext.compileSdkVersion = 24
+    ext.targetSdkVersion = 24
+    ext.buildToolsVersion = '24.0.2'
+    ext.supportLibVersion = '24.2.1'
+    ext.playServicesVersion = '9.6.1'
 
     repositories {
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0-rc1'
+        classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
         classpath 'ca.rmen:lib-french-revolutionary-calendar:1.5.0'
         classpath 'io.fabric.tools:gradle:1.21.7'
@@ -90,13 +97,6 @@ ext.buildNumber = buildNumberProperties.buildNumber.toInteger()
 ext.gitBranch = gitBranch()
 ext.gitSha1 = gitSha1()
 ext.buildDate = buildDate()
-
-// Versions used across modules
-ext.compileSdkVersion = 24
-ext.targetSdkVersion = 24
-ext.buildToolsVersion = '24.0.2'
-ext.supportLibVersion = '24.2.1'
-ext.playServicesVersion = '9.4.0'
 
 // Splash screen
 println """\n
