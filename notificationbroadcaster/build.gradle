@@ -3,13 +3,13 @@ apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion versions.buildTools
 
     defaultConfig {
         applicationId 'org.jraf.android.ticker.notificationbroadcaster'
         minSdkVersion 19
-        targetSdkVersion targetSdkVersion
+        targetSdkVersion versions.targetSdk
         versionCode buildNumber
         versionName buildProperties.versionName
 
@@ -87,6 +87,6 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.2@aar') { transitive = true; }
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') { transitive = true; }
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
 }
