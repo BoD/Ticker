@@ -11,12 +11,12 @@ buildscript {
     ext.versions = [:]
     ext.versions.with {
         androidGradlePlugin = '2.2.1'
-        kotlin = '1.0.4'
+        kotlin = '1.0.5'
         compileSdk = 24
         targetSdk = 24
-        buildTools = '24.0.2'
-        supportLibrary = '24.2.1'
-        playServices = '9.6.1'
+        buildTools = '25.0.0'
+        supportLibrary = '25.0.0'
+        playServices = '9.8.0'
     }
 
     repositories {

@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     companion object {
         private const val QUEUE_SIZE = 40
         private const val REQUEST_PERMISSION_LOCATION = 0
-        private const val FONT_NAME = "FjallaOne-Regular.ttf"
+        private const val FONT_NAME = "RobotoCondensed-Regular.ttf"
     }
 
     private lateinit var mBinding: MainBinding
@@ -140,7 +140,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         val bigSide = Math.max(rect.width(), rect.height())
 
         // A font size of about ~1 to 1/2 screen small side is a sensible value
-        val fontSize = (smallSide / 2f).toInt()
+        val fontSize = (smallSide / 1.8f).toInt()
         mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
 
         // A speed of about ~1 to 2 horizontal screens per second is a sensible value
