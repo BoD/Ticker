@@ -19,7 +19,7 @@
             android:name="com.google.android.awareness.API_KEY"
             android:value="${apiKeyGoogleAwareness}" />
 
-        <!-- Crashlytics api key -->
+        <!-- Fabric/Crashlytics api key -->
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="${apiKeyFabric}" />
