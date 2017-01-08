@@ -69,7 +69,9 @@ object LocationUtil {
             }
         }
 
-        val googleApiClient = GoogleApiClient.Builder(context).addApi(LocationServices.API).addConnectionCallbacks(connectionCallbacks).addOnConnectionFailedListener({ connectionResult -> Log.d("connectionResult=%s", connectionResult) }).build()
+        val googleApiClient = GoogleApiClient.Builder(context).addApi(LocationServices.API).addConnectionCallbacks(connectionCallbacks).addOnConnectionFailedListener({ connectionResult ->
+            Log.d("connectionResult=%s", connectionResult)
+        }).build()
         googleApiClient.blockingConnect()
 
         if (!connected.get()) {

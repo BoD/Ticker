@@ -23,6 +23,7 @@ buildscript {
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
     }
+
     dependencies {
         classpath "com.android.tools.build:gradle:$versions.androidGradlePlugin"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
@@ -37,8 +38,9 @@ allprojects {
         mavenLocal()
         jcenter()
         mavenCentral()
-        maven { url "https://jitpack.io" }
+        maven { url 'https://jitpack.io' }
         maven { url 'https://maven.fabric.io/public' }
+        maven { url 'https://dl.bintray.com/caarmen/maven/' }
     }
 }
 

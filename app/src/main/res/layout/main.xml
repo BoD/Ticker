@@ -8,6 +8,12 @@
         android:fitsSystemWindows="false"
         android:keepScreenOn="true">
 
+        <View
+            android:id="@+id/backgroundOpacity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000" />
+
         <TextView
             android:id="@+id/txtTicker"
             android:layout_width="wrap_content"

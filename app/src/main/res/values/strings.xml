@@ -3,6 +3,8 @@
 
     <string name="main_fetching">Fetching…</string>
     <string name="main_permissionNotGranted">Permission was not granted!</string>
+    <string name="main_brightness_toast">Brightness: %s%%</string>
+    <string name="main_backgroundOpacity_toast">Background: %s%%</string>
 
     <string name="weather_now">%1$s %2$.1fºC</string>
     <string name="weather_min">▼ %1$.1fºC</string>

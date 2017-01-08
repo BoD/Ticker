@@ -32,22 +32,33 @@ import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Message
 import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
+import android.widget.Toast
+import ca.rmen.sunrisesunset.SunriseSunset
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.databinding.MainBinding
 import org.jraf.android.ticker.message.MessageQueue
+import org.jraf.android.ticker.pref.MainPrefs
+import org.jraf.android.ticker.provider.datetimeweather.weather.LocationUtil
 import org.jraf.android.ticker.provider.manager.ProviderManager
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojis
 import org.jraf.android.util.log.Log
+import java.util.Calendar
+import java.util.concurrent.TimeUnit
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -55,11 +66,16 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         private const val QUEUE_SIZE = 40
         private const val REQUEST_PERMISSION_LOCATION = 0
         private const val FONT_NAME = "RobotoCondensed-Regular.ttf"
+        private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
     }
 
     private lateinit var mBinding: MainBinding
     private var mPixelsPerSecond: Float = 0F
     private lateinit var mTextQueue: MessageQueue
+    private val mToast: Toast by lazy {
+        Toast.makeText(this, "", Toast.LENGTH_SHORT)
+    }
+    private var mLocation: Location? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,17 +101,29 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         adjustFontSizeAndSpeed()
         setTickerText(getString(R.string.main_fetching))
 
+        mBinding.root.setOnTouchListener(mAdjustOnTouchListener)
+
         startScroll()
     }
 
     override fun onResume() {
         super.onResume()
         val hasPermissions = checkPermissions()
-        if (hasPermissions) startProviders()
+        if (hasPermissions) onPermissionsGranted()
     }
 
-    private fun startProviders() {
+    private fun onPermissionsGranted() {
+        thread {
+            mLocation = LocationUtil.getRecentLocation(MainActivity@ this, 30, TimeUnit.SECONDS)
+        }
+
         ProviderManager.startProviders(this, mTextQueue)
+
+        mUpdateBrightnessHandler.sendEmptyMessage(0)
+        val mainPrefs = MainPrefs.get(this)
+        if (mainPrefs.containsBrightnessNight()) {
+            setBrightness(mainPrefs.brightnessNight!!)
+        }
     }
 
     override fun onPause() {
@@ -120,7 +148,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         when (requestCode) {
             REQUEST_PERMISSION_LOCATION -> if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted
-                startProviders()
+                onPermissionsGranted()
             } else {
                 Log.w("Permission not granted: show a snackbar")
                 Snackbar.make(mBinding.root, R.string.main_permissionNotGranted, Snackbar.LENGTH_INDEFINITE).show()
@@ -186,4 +214,99 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             startScroll()
         }
     }
+
+
+    //--------------------------------------------------------------------------
+    // region Brightness and backgroind opacity.
+    //--------------------------------------------------------------------------
+
+    private val mAdjustOnTouchListener = View.OnTouchListener { v, event ->
+        val y = event.y
+        val height = v.height
+        val x = event.x
+        val width = v.width
+
+        val value = 1f - y / height
+
+        val left = x < width / 2
+        if (left) {
+            // Brightness
+            toast(value, R.string.main_brightness_toast)
+            setBrightness(value)
+        } else {
+            // Background opacity
+            toast(value, R.string.main_backgroundOpacity_toast)
+            setBackgroundOpacity(value)
+        }
+
+        if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+            if (left) persistBrightness(value)
+        }
+
+        true
+    }
+
+    /**
+     * Handler to update the time periodically.
+     */
+    private val mUpdateBrightnessHandler = object : Handler() {
+        override fun handleMessage(message: Message) {
+            val mainPrefs = MainPrefs.get(this@MainActivity)
+            if (isDay()) {
+                if (mainPrefs.containsBrightnessDay()) {
+                    setBrightness(mainPrefs.brightnessDay!!)
+                }
+            } else {
+                if (mainPrefs.containsBrightnessNight()) {
+                    setBrightness(mainPrefs.brightnessNight!!)
+                }
+            }
+
+            // Reschedule
+            sendEmptyMessageDelayed(0, UPDATE_BRIGHTNESS_RATE_MS)
+        }
+    }
+
+    private fun persistBrightness(value: Float) {
+        val mainPrefs = MainPrefs.get(this)
+        if (isDay()) {
+            mainPrefs.putBrightnessDay(value)
+        } else {
+            mainPrefs.putBrightnessNight(value)
+        }
+    }
+
+    private fun isDay(): Boolean {
+        val location = mLocation
+        if (location == null) {
+            val now = Calendar.getInstance()
+            val hour = now.get(Calendar.HOUR_OF_DAY)
+            return hour >= 8 && hour <= 10
+        } else {
+            return SunriseSunset.isDay(location.latitude, location.longitude)
+        }
+    }
+
+    private fun setBrightness(value: Float) {
+        val layout = window.attributes
+        layout.screenBrightness = if (value < 0) 0F else if (value > 1) 1F else value
+        window.attributes = layout
+    }
+
+    private fun setBackgroundOpacity(value: Float) {
+        val boundValue = if (value < 0) 0F else if (value > 1) 1F else value
+        mBinding.backgroundOpacity.setBackgroundColor(Color.argb((255f * (1f - boundValue)).toInt(), 0, 0, 0))
+    }
+
+
+    private fun toast(ratio: Float, textRes: Int) {
+        val text = getString(textRes, (ratio * 100).toInt())
+        with(mToast) {
+            setText(text)
+            duration = Toast.LENGTH_SHORT
+            show()
+        }
+    }
+
+    // endregion
 }
