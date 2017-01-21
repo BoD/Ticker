@@ -119,11 +119,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
         ProviderManager.startProviders(this, mTextQueue)
 
-        mUpdateBrightnessHandler.sendEmptyMessage(0)
-        val mainPrefs = MainPrefs.get(this)
-        if (mainPrefs.containsBrightnessNight()) {
-            setBrightness(mainPrefs.brightnessNight!!)
-        }
+        mUpdateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
     }
 
     override fun onPause() {
@@ -226,7 +222,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         val x = event.x
         val width = v.width
 
-        val value = 1f - y / height
+        val value = Math.max(0f, 1f - y / height)
 
         val left = x < width / 2
         if (left) {
@@ -240,26 +236,28 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         }
 
         if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
-            if (left) persistBrightness(value)
+            if (left) {
+                persistBrightness(value)
+            } else {
+                persistBackgroundOpacity(value)
+            }
         }
 
         true
     }
 
     /**
-     * Handler to update the time periodically.
+     * Handler to update the brightness / background opacity periodically.
      */
-    private val mUpdateBrightnessHandler = object : Handler() {
+    private val mUpdateBrightnessAndBackgroundOpacityHandler = object : Handler() {
         override fun handleMessage(message: Message) {
             val mainPrefs = MainPrefs.get(this@MainActivity)
             if (isDay()) {
-                if (mainPrefs.containsBrightnessDay()) {
-                    setBrightness(mainPrefs.brightnessDay!!)
-                }
+                mainPrefs.brightnessDay?.let { setBrightness(it) }
+                mainPrefs.backgroundOpacityDay?.let { setBackgroundOpacity(it) }
             } else {
-                if (mainPrefs.containsBrightnessNight()) {
-                    setBrightness(mainPrefs.brightnessNight!!)
-                }
+                mainPrefs.brightnessNight?.let { setBrightness(it) }
+                mainPrefs.backgroundOpacityNight?.let { setBackgroundOpacity(it) }
             }
 
             // Reschedule
@@ -273,6 +271,15 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             mainPrefs.putBrightnessDay(value)
         } else {
             mainPrefs.putBrightnessNight(value)
+        }
+    }
+
+    private fun persistBackgroundOpacity(value: Float) {
+        val mainPrefs = MainPrefs.get(this)
+        if (isDay()) {
+            mainPrefs.putBackgroundOpacityDay(value)
+        } else {
+            mainPrefs.putBackgroundOpacityNight(value)
         }
     }
 

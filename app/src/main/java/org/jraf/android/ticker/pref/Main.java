@@ -30,4 +30,6 @@ import org.jraf.android.prefs.Prefs;
 public class Main {
     Float brightnessDay;
     Float brightnessNight;
+    Float backgroundOpacityDay;
+    Float backgroundOpacityNight;
 }
