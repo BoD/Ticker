@@ -28,11 +28,14 @@ import android.content.Context
 import android.os.Handler
 import android.os.HandlerThread
 import android.text.format.DateUtils
+import ca.rmen.lfrc.FrenchRevolutionaryCalendar
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.provider.Provider
 import org.jraf.android.ticker.provider.ProviderException
 import org.jraf.android.ticker.provider.datetimeweather.weather.forecastio.ForecastIoClient
 import org.jraf.android.ticker.provider.manager.ProviderManagerCallbacks
+import java.util.GregorianCalendar
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 class DateTimeWeatherProvider : Provider {
@@ -71,16 +74,21 @@ class DateTimeWeatherProvider : Provider {
         val forecastIoClient = ForecastIoClient.get(mContext)
         val weatherResult = forecastIoClient.weather
 
+        // French Revolutionary Calendar
+        val frcDate = FrenchRevolutionaryCalendar(Locale.FRENCH, FrenchRevolutionaryCalendar.CalculationMethod.ROMME).getDate(GregorianCalendar.getInstance() as GregorianCalendar?)
+        val frcDateStr = mContext.getString(R.string.frc_date, frcDate.weekdayName, frcDate.dayOfMonth, frcDate.monthName, frcDate.year)
+        val frcObjectStr = mContext.getString(R.string.frc_object, frcDate.objectTypeName, frcDate.dayOfYear)
+
         // Add everything urgently at once
         if (weatherResult == null) {
-            mCallbacks.addUrgent(date, time)
+            mCallbacks.addUrgent(date, time, frcDateStr, frcObjectStr)
         } else {
             val weatherNow = mContext.getString(R.string.weather_now,
                     weatherResult.todayWeatherCondition.symbol,
                     weatherResult.currentTemperature)
             val weatherMin = mContext.getString(R.string.weather_min, weatherResult.todayMinTemperature)
             val weatherMax = mContext.getString(R.string.weather_max, weatherResult.todayMaxTemperature)
-            mCallbacks.addUrgent(date, time, weatherNow, weatherMin, weatherMax)
+            mCallbacks.addUrgent(date, time, frcDateStr, frcObjectStr, weatherNow, weatherMin, weatherMax)
         }
 
         startDateTimeWeather()
