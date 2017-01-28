@@ -103,12 +103,12 @@ dependencies {
 
     compile "com.android.support:design:$versions.supportLibrary"
     compile "com.google.android.gms:play-services-location:$versions.playServices"
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') { transitive = true; }
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') { transitive = true; }
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
     kapt 'org.jraf:prefs-compiler:1.1.1'
     compile 'org.jraf:prefs:1.1.1'
     compile 'org.twitter4j:twitter4j-core:4.0.6'
-    compile 'com.github.dvdme:ForecastIOLib:1.5.5'
+    compile 'com.github.dvdme:ForecastIOLib:1.6.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
     compile 'ca.rmen:lib-sunrise-sunset:1.1.0'
     compile 'ca.rmen:lib-french-revolutionary-calendar:1.5.2'
