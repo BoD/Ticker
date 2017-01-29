@@ -54,6 +54,12 @@ android {
     dataBinding {
         enabled = true
     }
+
+    lintOptions {
+        abortOnError true
+        textReport true
+        ignoreWarnings true
+    }
 }
 
 android.applicationVariants.all { variant ->
@@ -86,6 +92,7 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
 
+    compile "com.android.support:appcompat-v7:$versions.supportLibrary"
     compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') { transitive = true; }
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
 }

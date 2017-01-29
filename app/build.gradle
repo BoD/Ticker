@@ -66,6 +66,12 @@ android {
         enabled = true
     }
 
+    lintOptions {
+        abortOnError true
+        textReport true
+        ignoreWarnings true
+    }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -101,6 +107,7 @@ dependencies {
     })
     testCompile 'junit:junit:4.12'
 
+    compile "com.android.support:appcompat-v7:$versions.supportLibrary"
     compile "com.android.support:design:$versions.supportLibrary"
     compile "com.google.android.gms:play-services-location:$versions.playServices"
     compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') { transitive = true; }
