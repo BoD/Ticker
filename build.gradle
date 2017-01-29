@@ -14,7 +14,7 @@ buildscript {
         kotlin = '1.0.6'
         compileSdk = 25
         targetSdk = 25
-        buildTools = '25.0.1'
+        buildTools = '25.0.2'
         supportLibrary = '25.1.0'
         playServices = '10.0.1'
     }
