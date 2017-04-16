@@ -25,8 +25,6 @@
 package org.jraf.android.ticker.app.main
 
 import android.Manifest
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
 import android.graphics.Color
@@ -45,8 +43,8 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.view.animation.LinearInterpolator
 import android.widget.Toast
+import ca.rmen.sunrisesunset.SunriseSunset
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.databinding.MainBinding
 import org.jraf.android.ticker.message.MessageQueue
@@ -66,10 +64,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         private const val REQUEST_PERMISSION_LOCATION = 0
         private const val FONT_NAME = "RobotoCondensed-Regular.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
+        private val UPDATE_TEXT_RATE_MS = TimeUnit.SECONDS.toMillis(10)
     }
 
     private lateinit var mBinding: MainBinding
-    private var mPixelsPerSecond: Float = 0F
     private lateinit var mTextQueue: MessageQueue
     private val mToast: Toast by lazy {
         Toast.makeText(this, "", Toast.LENGTH_SHORT)
@@ -97,12 +95,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         mBinding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/" + FONT_NAME)
 
         mTextQueue = MessageQueue(QUEUE_SIZE)
-        adjustFontSizeAndSpeed()
+        adjustFontSize()
         setTickerText(getString(R.string.main_fetching))
 
         mBinding.root.setOnTouchListener(mAdjustOnTouchListener)
-
-        startScroll()
     }
 
     override fun onResume() {
@@ -119,10 +115,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         ProviderManager.startProviders(this, mTextQueue)
 
         mUpdateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
+        mUpdateTextHandler.sendEmptyMessage(0)
     }
 
     override fun onPause() {
         ProviderManager.stopProviders()
+        mUpdateBrightnessAndBackgroundOpacityHandler.removeCallbacksAndMessages(null)
+        mUpdateTextHandler.removeCallbacksAndMessages(null)
         super.onPause()
     }
 
@@ -156,19 +155,14 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     // endregion
 
 
-    private fun adjustFontSizeAndSpeed() {
+    private fun adjustFontSize() {
         val rect = Rect()
         window.decorView.getWindowVisibleDisplayFrame(rect)
         val smallSide = Math.min(rect.width(), rect.height())
-        val bigSide = Math.max(rect.width(), rect.height())
 
-        // A font size of about ~1 to 1/2 screen small side is a sensible value
-        val fontSize = (smallSide / 1.8f).toInt()
+        // A font size of about ~1/5 to 1/6 screen small side is a sensible value
+        val fontSize = (smallSide / 6f).toInt()
         mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
-
-        // A speed of about ~1 to 2 horizontal screens per second is a sensible value
-        mPixelsPerSecond = bigSide * 1.1f
-        Log.d("mPixelsPerSecond=%s", mPixelsPerSecond)
     }
 
     private fun setTickerText(tickerText: CharSequence) {
@@ -181,33 +175,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         hsv[2] = .75f
         val color = Color.HSVToColor(hsv)
         mBinding.txtTicker.setTextColor(color)
-
-        // Change the text size
-        val layoutParams = mBinding.txtTicker.layoutParams
-        mBinding.txtTicker.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-        layoutParams.width = mBinding.txtTicker.measuredWidth
-        mBinding.txtTicker.requestLayout()
-    }
-
-    private fun startScroll() {
-        mBinding.txtTicker.post {
-            val margin = mBinding.root.width
-            val textWidth = mBinding.txtTicker.width
-            val totalWidth = textWidth + margin
-            val animationDuration = (totalWidth / mPixelsPerSecond * 1000f).toInt()
-            mBinding.txtTicker.translationX = margin.toFloat()
-            mBinding.txtTicker.animate().setInterpolator(LinearInterpolator()).translationX((-textWidth).toFloat()).setDuration(animationDuration.toLong()).setListener(mAnimatorListener)
-        }
-    }
-
-    private val mAnimatorListener = object : AnimatorListenerAdapter() {
-        override fun onAnimationEnd(animation: Animator) {
-            val newText = mTextQueue.next
-            if (newText != null) setTickerText(newText)
-            val margin = mBinding.root.width
-            mBinding.txtTicker.translationX = margin.toFloat()
-            startScroll()
-        }
     }
 
 
@@ -243,6 +210,19 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         }
 
         true
+    }
+
+    /**
+     * Handler to update the text periodically.
+     */
+    private val mUpdateTextHandler = object : Handler() {
+        override fun handleMessage(message: Message) {
+            val newText = mTextQueue.next
+            if (newText != null) setTickerText(newText)
+
+            // Reschedule
+            sendEmptyMessageDelayed(0, UPDATE_TEXT_RATE_MS)
+        }
     }
 
     /**
