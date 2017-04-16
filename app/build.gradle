@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 if (buildProperties.enableFabric.toBoolean()) apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.compileSdk

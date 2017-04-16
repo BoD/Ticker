@@ -47,7 +47,6 @@ import android.view.View
 import android.view.WindowManager
 import android.view.animation.LinearInterpolator
 import android.widget.Toast
-import ca.rmen.sunrisesunset.SunriseSunset
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.databinding.MainBinding
 import org.jraf.android.ticker.message.MessageQueue
@@ -288,7 +287,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         if (location == null) {
             val now = Calendar.getInstance()
             val hour = now.get(Calendar.HOUR_OF_DAY)
-            return hour >= 8 && hour <= 10
+            return hour in 8..10
         } else {
             return SunriseSunset.isDay(location.latitude, location.longitude)
         }
