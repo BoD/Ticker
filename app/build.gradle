@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId 'org.jraf.android.ticker'
-        minSdkVersion 12
+        minSdkVersion 14
         targetSdkVersion versions.targetSdk
         versionCode buildNumber
         versionName buildProperties.versionName
@@ -102,23 +102,23 @@ android.applicationVariants.all { variant ->
 }
 
 dependencies {
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$versions.espresso", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile 'junit:junit:4.12'
+    testCompile "junit:junit:$versions.junit"
 
     compile "com.android.support:appcompat-v7:$versions.supportLibrary"
     compile "com.android.support:design:$versions.supportLibrary"
     compile "com.google.android.gms:play-services-location:$versions.playServices"
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.6@aar') { transitive = true; }
+    compile("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") { transitive = true }
     compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
-    kapt 'org.jraf:prefs-compiler:1.1.1'
-    compile 'org.jraf:prefs:1.1.1'
-    compile 'org.twitter4j:twitter4j-core:4.0.6'
-    compile 'com.github.dvdme:ForecastIOLib:1.6.0'
+    kapt "org.jraf:prefs-compiler:$versions.prefs"
+    compile "org.jraf:prefs:$versions.prefs"
+    compile "org.twitter4j:twitter4j-core:$versions.twitter4j"
+    compile "com.github.dvdme:ForecastIOLib:$versions.forecastIo"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
-    compile 'ca.rmen:lib-sunrise-sunset:1.1.0'
-    compile 'ca.rmen:lib-french-revolutionary-calendar:1.5.2'
+    compile "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
+    compile "ca.rmen:lib-french-revolutionary-calendar:$versions.libFrc"
 
     // Necessary to have Kotlin and dataBinding at the same time
     kapt "com.android.databinding:compiler:$versions.androidGradlePlugin"

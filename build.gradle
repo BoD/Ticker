@@ -10,25 +10,47 @@ buildscript {
     // Versions used across modules
     ext.versions = [:]
     ext.versions.with {
-        androidGradlePlugin = '2.3.0-beta3'
-        kotlin = '1.0.6'
+        androidGradlePlugin = '2.4.0-alpha6'
+        gradleVersionsPlugin = '0.14.0'
+        fabricPlugin = '1.22.1'
+        dexCountPlugin = '0.6.4'
+        libFrc = '1.5.2'
+
         compileSdk = 25
         targetSdk = 25
+
         buildTools = '25.0.2'
-        supportLibrary = '25.1.0'
-        playServices = '10.0.1'
+        kotlin = '1.1.2-eap-69'
+        supportLibrary = '25.3.1'
+        playServices = '10.2.1'
+        espresso = '2.2.2'
+        junit = '4.12'
+        robolectric = '3.3.2'
+        fest = '2.0M10'
+        rxJava = '2.0.8'
+        rxAndroid = '2.0.1'
+        crashlytics = '2.6.7'
+        prefs = '1.1.1'
+        okHttp = '3.7.0'
+        twitter4j = '4.0.6'
+        forecastIo = '1.6.0'
+        sunriseSunset = '1.1.0'
     }
 
     repositories {
+        mavenLocal()
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
+        // Kotlin Early Access
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap-1.1' }
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$versions.androidGradlePlugin"
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.13.0'
-        classpath 'ca.rmen:lib-french-revolutionary-calendar:1.5.2'
-        classpath 'io.fabric.tools:gradle:1.22.1'
+        classpath "com.github.ben-manes:gradle-versions-plugin:$versions.gradleVersionsPlugin"
+        classpath "ca.rmen:lib-french-revolutionary-calendar:$versions.libFrc"
+        classpath "io.fabric.tools:gradle:$versions.fabricPlugin"
+        classpath "com.getkeepsafe.dexcount:dexcount-gradle-plugin:$versions.dexCountPlugin"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
     }
 }
@@ -41,6 +63,28 @@ allprojects {
         maven { url 'https://jitpack.io' }
         maven { url 'https://maven.fabric.io/public' }
         maven { url 'https://dl.bintray.com/caarmen/maven/' }
+        // Kotlin Early Access
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap-1.1' }
+    }
+
+    // Force using our version of the support libraries, even for those we don't depend on directly (transitive dependencies)
+    configurations.all {
+        resolutionStrategy {
+            force "com.android.support:appcompat-v7:$versions.supportLibrary",
+                    "com.android.support:cardview-v7:$versions.supportLibrary",
+                    "com.android.support:customtabs:$versions.supportLibrary",
+                    "com.android.support:support-v4:$versions.supportLibrary",
+                    "com.android.support:support-annotations:$versions.supportLibrary",
+                    "com.android.support:percent:$versions.supportLibrary",
+                    "com.android.support:recyclerview-v7:$versions.supportLibrary"
+        }
+    }
+
+    // Show a report in the log when running tests
+    tasks.withType(Test) {
+        testLogging {
+            events "passed", "skipped", "failed", "standardOut", "standardError"
+        }
     }
 }
 
@@ -49,13 +93,13 @@ task clean(type: Delete) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '3.3'
+    gradleVersion = '3.5'
     distributionType = Wrapper.DistributionType.ALL
 }
 
 // Add a 'release' task that increments the build number
 def releaseTask = tasks.create(name: 'release', group: 'build')
-releaseTask << {
+releaseTask.doLast {
     buildNumberProperties.buildNumber = (buildNumber + 1).toString()
     buildNumberProperties.store(buildNumberFile.newWriter(), null)
 }
@@ -71,6 +115,18 @@ subprojects {
 
 // Run './gradlew dependencyUpdates' to see new versions of dependencies
 apply plugin: 'com.github.ben-manes.versions'
+dependencyUpdates.resolutionStrategy = {
+    componentSelection { rules ->
+        rules.all { selection ->
+            boolean rejected = ['alpha', 'beta', 'rc', '20050927'].any { qualifier ->
+                selection.candidate.version ==~ /.*-${qualifier}.*/
+            }
+            if (rejected) {
+                selection.reject('Release candidate')
+            }
+        }
+    }
+}
 
 // Returns the name of the current git branch
 def gitBranch() {
