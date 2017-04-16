@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         private const val REQUEST_PERMISSION_LOCATION = 0
         private const val FONT_NAME = "RobotoCondensed-Regular.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
-        private val UPDATE_TEXT_RATE_MS = TimeUnit.SECONDS.toMillis(10)
+        private val UPDATE_TEXT_RATE_MS = TimeUnit.SECONDS.toMillis(12)
     }
 
     private lateinit var mBinding: MainBinding
@@ -95,8 +95,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         mBinding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/" + FONT_NAME)
 
         mTextQueue = MessageQueue(QUEUE_SIZE)
-        adjustFontSize()
         setTickerText(getString(R.string.main_fetching))
+        adjustFontSize()
 
         mBinding.root.setOnTouchListener(mAdjustOnTouchListener)
     }
@@ -160,8 +160,17 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         window.decorView.getWindowVisibleDisplayFrame(rect)
         val smallSide = Math.min(rect.width(), rect.height())
 
-        // A font size of about ~1/5 to 1/6 screen small side is a sensible value
-        val fontSize = (smallSide / 6f).toInt()
+        // A font size of about ~1/8 to 1/10 screen small side is a sensible value for the starting font size
+        var fontSize = (smallSide / 10f).toInt()
+        mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
+
+        mBinding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
+        while (mBinding.txtTicker.measuredHeight < rect.height()) {
+            fontSize += 2
+            mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
+            mBinding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
+        }
+        fontSize -= 2
         mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
     }
 
@@ -175,6 +184,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         hsv[2] = .75f
         val color = Color.HSVToColor(hsv)
         mBinding.txtTicker.setTextColor(color)
+
+        adjustFontSize()
     }
 
 
