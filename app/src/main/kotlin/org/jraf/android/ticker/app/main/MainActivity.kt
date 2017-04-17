@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
         private val UPDATE_TEXT_RATE_MS = TimeUnit.SECONDS.toMillis(12)
-        private val TYPEWRITER_EFFECT_DELAY_MS = 45L
+        private val TYPEWRITER_EFFECT_DELAY_MS = 33L
     }
 
     private lateinit var mBinding: MainBinding
