@@ -124,8 +124,3 @@ dependencies {
     // Necessary to have Kotlin and dataBinding at the same time
     kapt "com.android.databinding:compiler:$versions.androidGradlePlugin"
 }
-
-//// Necessary to have Kotlin and dataBinding at the same time
-//kapt {
-//    generateStubs = true
-//}

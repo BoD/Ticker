@@ -39,6 +39,9 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -62,9 +65,10 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     companion object {
         private const val QUEUE_SIZE = 40
         private const val REQUEST_PERMISSION_LOCATION = 0
-        private const val FONT_NAME = "RobotoCondensed-Regular.ttf"
+        private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
         private val UPDATE_TEXT_RATE_MS = TimeUnit.SECONDS.toMillis(12)
+        private val TYPEWRITER_EFFECT_DELAY_MS = 45L
     }
 
     private lateinit var mBinding: MainBinding
@@ -96,7 +100,6 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
         mTextQueue = MessageQueue(QUEUE_SIZE)
         setTickerText(getString(R.string.main_fetching))
-        adjustFontSize()
 
         mBinding.root.setOnTouchListener(mAdjustOnTouchListener)
     }
@@ -155,7 +158,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     // endregion
 
 
-    private fun adjustFontSize() {
+    private fun adjustFontSize(tickerText: CharSequence) {
         val rect = Rect()
         window.decorView.getWindowVisibleDisplayFrame(rect)
         val smallSide = Math.min(rect.width(), rect.height())
@@ -163,6 +166,8 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         // A font size of about ~1/8 to 1/10 screen small side is a sensible value for the starting font size
         var fontSize = (smallSide / 10f).toInt()
         mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
+
+        mBinding.txtTicker.text = tickerText;
 
         mBinding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
         while (mBinding.txtTicker.measuredHeight < rect.height()) {
@@ -172,10 +177,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         }
         fontSize -= 2
         mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
+        mBinding.txtTicker.text = null
     }
 
     private fun setTickerText(tickerText: CharSequence) {
-        mBinding.txtTicker.text = tickerText.replaceEmojis(mBinding.txtTicker)
+        val text = tickerText.replaceEmojis(mBinding.txtTicker)
+
+        adjustFontSize(text)
 
         // Change the color randomly
         val hsv = FloatArray(3)
@@ -185,7 +193,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         val color = Color.HSVToColor(hsv)
         mBinding.txtTicker.setTextColor(color)
 
-        adjustFontSize()
+        for (i in 0 until text.length) {
+            mBinding.txtTicker.postDelayed({
+                val truncatedText = SpannableStringBuilder(text)
+                truncatedText.setSpan(ForegroundColorSpan(Color.TRANSPARENT), i + 1, text.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                mBinding.txtTicker.text = truncatedText
+            }, TYPEWRITER_EFFECT_DELAY_MS * i)
+        }
     }
 
 

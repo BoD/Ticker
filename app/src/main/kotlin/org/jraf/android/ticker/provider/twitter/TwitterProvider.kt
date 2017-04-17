@@ -29,6 +29,7 @@ import android.support.v4.content.res.ResourcesCompat
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.text.style.RelativeSizeSpan
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.provider.Provider
 import org.jraf.android.ticker.provider.ProviderException
@@ -76,6 +77,8 @@ class TwitterProvider : Provider {
                     val spannableStringBuilder = SpannableStringBuilder(statusText)
                     val foregroundColorSpan = ForegroundColorSpan(ResourcesCompat.getColor(mContext.resources, R.color.tweetAuthor, null))
                     spannableStringBuilder.setSpan(foregroundColorSpan, 0, author.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                    val sizeSpan = RelativeSizeSpan(.6F)
+                    spannableStringBuilder.setSpan(sizeSpan, 0, author.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
                     mCallbacks.add(spannableStringBuilder)
                 }
             }
