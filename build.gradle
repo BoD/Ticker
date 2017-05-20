@@ -11,6 +11,7 @@ buildscript {
     ext.versions = [:]
     ext.versions.with {
         androidGradlePlugin = '2.4.0-alpha7'
+//        androidGradlePlugin = '3.0.0-alpha1'
         gradleVersionsPlugin = '0.14.0'
         fabricPlugin = '1.22.1'
         dexCountPlugin = '0.6.4'
@@ -20,16 +21,16 @@ buildscript {
         targetSdk = 25
 
         buildTools = '25.0.2'
-        kotlin = '1.1.2-eap-69'
+        kotlin = '1.1.2-2'
         supportLibrary = '25.3.1'
-        playServices = '10.2.1'
+        playServices = '10.2.4'
         espresso = '2.2.2'
         junit = '4.12'
         robolectric = '3.3.2'
         fest = '2.0M10'
         rxJava = '2.0.8'
         rxAndroid = '2.0.1'
-        crashlytics = '2.6.7'
+        crashlytics = '2.6.8'
         prefs = '1.1.1'
         okHttp = '3.7.0'
         twitter4j = '4.0.6'
@@ -38,11 +39,9 @@ buildscript {
     }
 
     repositories {
-        mavenLocal()
+        maven { url 'https://maven.google.com' }
         jcenter()
         maven { url 'https://maven.fabric.io/public' }
-        // Kotlin Early Access
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap-1.1' }
     }
 
     dependencies {
@@ -57,14 +56,10 @@ buildscript {
 
 allprojects {
     repositories {
-        mavenLocal()
+        maven { url 'https://maven.google.com' }
         jcenter()
-        mavenCentral()
         maven { url 'https://jitpack.io' }
         maven { url 'https://maven.fabric.io/public' }
-        maven { url 'https://dl.bintray.com/caarmen/maven/' }
-        // Kotlin Early Access
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap-1.1' }
     }
 
     // Force using our version of the support libraries, even for those we don't depend on directly (transitive dependencies)

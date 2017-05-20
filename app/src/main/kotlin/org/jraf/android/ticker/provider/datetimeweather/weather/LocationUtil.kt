@@ -28,6 +28,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.os.Looper
 import android.support.annotation.WorkerThread
@@ -42,8 +43,11 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
+
 object LocationUtil {
     private val LAST_LOCATION_MAX_AGE_MS = TimeUnit.HOURS.toMillis(1)
+
+    private var cachedAndroidLocation: Location? = null
 
     /**
      * Retrieves a recent location.
@@ -75,8 +79,13 @@ object LocationUtil {
         googleApiClient.blockingConnect()
 
         if (!connected.get()) {
-            Log.d("Could not connect to Play Services: returning null")
-            return null
+            Log.d("Could not connect to Play Services: try Android location service")
+            val cachedAndroidLocation = this.cachedAndroidLocation
+            if (cachedAndroidLocation != null && System.currentTimeMillis() - cachedAndroidLocation.time < LAST_LOCATION_MAX_AGE_MS) {
+                return cachedAndroidLocation
+            }
+            this.cachedAndroidLocation = getCurrentAndroidLocation(context, timeout, unit)
+            return cachedAndroidLocation
         }
         val lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient)
         if (lastLocation != null && System.currentTimeMillis() - lastLocation.time < LAST_LOCATION_MAX_AGE_MS) {
@@ -107,6 +116,35 @@ object LocationUtil {
         // Remove updates and disconnect
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, locationListener)
         if (googleApiClient.isConnected) googleApiClient.disconnect()
+
+        if (location.get() == null) Log.d("Did not get any location update, and timeout expired: returning null")
+        return location.get()
+    }
+
+    @WorkerThread
+    private fun getCurrentAndroidLocation(context: Context, timeout: Long, unit: TimeUnit): Location? {
+        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val location = AtomicReference<Location>()
+        val countDownLatch = CountDownLatch(1)
+        val locationListener = object : android.location.LocationListener {
+            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+
+            override fun onProviderEnabled(provider: String?) {}
+
+            override fun onProviderDisabled(provider: String?) {}
+
+            override fun onLocationChanged(l: Location) {
+                Log.d("Got a location changed event: %s", l)
+                location.set(l)
+                countDownLatch.countDown()
+            }
+        }
+
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0F, locationListener, Looper.getMainLooper())
+        countDownLatch.await(timeout, unit)
+
+        // Remove updates
+        locationManager.removeUpdates(locationListener)
 
         if (location.get() == null) Log.d("Did not get any location update, and timeout expired: returning null")
         return location.get()

@@ -90,6 +90,7 @@ internal class TwitterClient private constructor(val mContext: Context) {
             try {
                 Log.d("Checking for new tweets")
                 val statusList = mTwitter.getUserListStatuses("bod", "news", Paging(1, RETRIEVE_COUNT))
+//                val statusList = mTwitter.search().search(Query("eurovision")).tweets
                 if (statusList.isEmpty()) {
                     Log.d("No tweets")
                     return
