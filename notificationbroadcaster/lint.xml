@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <!-- Ignore some android incompatible packages included in Twitter4J -->
-    <issue id="InvalidPackage">
-        <ignore regexp=".*management.*" />
-    </issue>
-
     <!-- Ignore API level 23 code in JRAF Util (it's not used) -->
     <issue id="NewApi">
         <ignore path="build/generated/**" />

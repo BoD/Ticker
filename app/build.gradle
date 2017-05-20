@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 if (buildProperties.enableFabric.toBoolean()) apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -125,7 +124,6 @@ dependencies {
     kapt "com.android.databinding:compiler:$versions.androidGradlePlugin"
 }
 
-// Necessary to have Kotlin and dataBinding at the same time
 kapt {
     generateStubs = true
 }

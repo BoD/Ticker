@@ -95,7 +95,7 @@ class DateTimeWeatherProvider : Provider {
     }
 
     private fun startDateTimeWeather() {
-        mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.MINUTES.toMillis(1) + TimeUnit.SECONDS.toMillis(30))
+        mDateTimeWeatherHandler.postDelayed(mDateTimeWeatherRunnable, TimeUnit.MINUTES.toMillis(5))
 
     }
 
