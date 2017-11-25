@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
-if (buildProperties.enableFabric.toBoolean()) apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+if (buildProperties.enableFabric.toBoolean()) apply plugin: 'io.fabric'
+//apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -15,10 +17,10 @@ android {
 
         testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
 
-        buildConfigField 'String', 'GIT_SHA1', "\"${gitSha1}\""
-        buildConfigField 'String', 'BUILD_DATE', "\"${buildDate}\""
         // For now we enable strict mode for all the configs
         buildConfigField 'boolean', 'STRICT_MODE', 'true'
+        // For now we enable debug logs all the configs
+        buildConfigField 'boolean', 'DEBUG_LOGS', 'true'
 
         resConfigs 'en', 'fr'
 
@@ -49,10 +51,14 @@ android {
 
     buildTypes {
         debug {
+            buildConfigField 'String', 'GIT_SHA1', "\"dev\""
+            buildConfigField 'String', 'BUILD_DATE', "\"dev\""
             buildConfigField 'boolean', 'CRASH_REPORT', 'false'
         }
 
         release {
+            buildConfigField 'String', 'GIT_SHA1', "\"${gitSha1}\""
+            buildConfigField 'String', 'BUILD_DATE', "\"${buildDate}\""
             buildConfigField 'boolean', 'CRASH_REPORT', 'true'
 
             minifyEnabled true
@@ -81,19 +87,20 @@ android.applicationVariants.all { variant ->
     // Create new copy tasks, for release builds
     if (variant.buildType.name == 'release') {
         variant.outputs.each { output ->
+            def outputFile = file("build/outputs/apk/${variant.flavorName}/release/$output.outputFileName")
             def apkName = "${globalProjectName}-${project.name}-${android.defaultConfig.versionCode}-${variant.flavorName}-signed.apk"
 
             // Copy the apk to the 'etc' folder
             def copyApkToEtc = tasks.create("copy${variant.name.capitalize()}ApkToEtc", Copy)
-            copyApkToEtc.from(output.outputFile)
+            copyApkToEtc.from(outputFile)
             copyApkToEtc.into('../etc/apk')
-            copyApkToEtc.rename output.outputFile.name, apkName
+            copyApkToEtc.rename output.outputFileName, apkName
 
             // Copy the apk to the deploy folder
             def copyApkToDeploy = tasks.create("copy${variant.name.capitalize()}ApkToDeploy", Copy)
-            copyApkToDeploy.from(output.outputFile)
+            copyApkToDeploy.from(outputFile)
             copyApkToDeploy.into(buildProperties.deployFolder)
-            copyApkToDeploy.rename output.outputFile.name, apkName
+            copyApkToDeploy.rename output.outputFileName, apkName
 
             // Make the copy tasks run after the assemble tasks of the variant
             variant.assemble.finalizedBy(copyApkToEtc, copyApkToDeploy)
@@ -102,29 +109,52 @@ android.applicationVariants.all { variant ->
 }
 
 dependencies {
-    androidTestCompile("com.android.support.test.espresso:espresso-core:$versions.espresso", {
+    // Tests
+    androidTestImplementation("com.android.support.test.espresso:espresso-core:$versions.espresso", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testCompile "junit:junit:$versions.junit"
+    testImplementation "junit:junit:$versions.junit"
 
-    compile "com.android.support:appcompat-v7:$versions.supportLibrary"
-    compile "com.android.support:design:$versions.supportLibrary"
-    compile "com.google.android.gms:play-services-location:$versions.playServices"
-    compile("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") { transitive = true }
-    compile 'com.github.BoD:jraf-android-util:-SNAPSHOT'
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$versions.kotlin"
+
+    // Support library
+    implementation "com.android.support:appcompat-v7:$versions.supportLibrary"
+    implementation "com.android.support:design:$versions.supportLibrary"
+
+    // Play Services
+    implementation "com.google.android.gms:play-services-location:$versions.playServices"
+
+    // Fabric / Crashlytics
+    implementation("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") { transitive = true }
+
+    // JRAF
     kapt "org.jraf:prefs-compiler:$versions.prefs"
-    compile "org.jraf:prefs:$versions.prefs"
-    compile "org.twitter4j:twitter4j-core:$versions.twitter4j"
-    compile "com.github.dvdme:ForecastIOLib:$versions.forecastIo"
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
-    compile "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
-    compile "ca.rmen:lib-french-revolutionary-calendar:$versions.libFrc"
+    implementation "org.jraf:prefs:$versions.prefs"
+    implementation 'com.github.BoD:jraf-android-util:-SNAPSHOT'
+//    implementation 'org.jraf:jraf-android-util:1.0.0'
+
+    // Twitter4J
+    implementation "org.twitter4j:twitter4j-core:$versions.twitter4j"
+    
+    // ForecasIO
+    implementation "com.github.dvdme:ForecastIOLib:$versions.forecastIo"
+
+    // Sunrise sunset
+    implementation "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
+    
+    // FRC
+    implementation "ca.rmen:lib-french-revolutionary-calendar:$versions.libFrc"
 
     // Necessary to have Kotlin and dataBinding at the same time
-    kapt "com.android.databinding:compiler:$versions.androidGradlePlugin"
+    kapt "com.android.databinding:compiler:$versions.androidGradlePlugin" // <- Ici
+
+    // Rx
+//    implementation "io.reactivex.rxjava2:rxandroid:$versions.rxAndroid"
+//    implementation "io.reactivex.rxjava2:rxjava:$versions.rxJava"
 }
 
-// Necessary to have Kotlin and dataBinding at the same time
+// Necessary for Prefs to work (see https://kotlinlang.org/docs/reference/kapt.html)
 kapt {
-    generateStubs = true
+    correctErrorTypes = true
 }
