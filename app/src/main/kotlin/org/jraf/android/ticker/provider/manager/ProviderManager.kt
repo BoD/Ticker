@@ -26,6 +26,7 @@ package org.jraf.android.ticker.provider.manager
 
 import android.content.Context
 import org.jraf.android.ticker.message.MessageQueueable
+import org.jraf.android.ticker.provider.btc.BtcProvider
 import org.jraf.android.ticker.provider.datetimeweather.DateTimeWeatherProvider
 import org.jraf.android.ticker.provider.twitter.TwitterProvider
 import org.jraf.android.ticker.provider.udp.UdpProvider
@@ -35,7 +36,8 @@ object ProviderManager {
     private val PROVIDER_CLASSES = arrayOf(
             UdpProvider::class.java,
             TwitterProvider::class.java,
-            DateTimeWeatherProvider::class.java
+            DateTimeWeatherProvider::class.java,
+            BtcProvider::class.java
     )
 
     private val mProviderEntries = ArrayList<ProviderEntry>(4)

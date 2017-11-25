@@ -151,6 +151,9 @@ dependencies {
     // Rx
 //    implementation "io.reactivex.rxjava2:rxandroid:$versions.rxAndroid"
 //    implementation "io.reactivex.rxjava2:rxjava:$versions.rxJava"
+
+    // Klaxon
+    compile "com.beust:klaxon:$versions.klaxon"
 }
 
 // Necessary for Prefs to work (see https://kotlinlang.org/docs/reference/kapt.html)

@@ -36,6 +36,7 @@ buildscript {
         twitter4j = '4.0.6'
         forecastIo = '1.6.0'
         sunriseSunset = '1.1.0'
+        klaxon = '0.30'
     }
 
     repositories {

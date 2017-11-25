@@ -64,7 +64,7 @@ class DateTimeWeatherProvider : Provider {
         mCallbacks.onStop()
     }
 
-    private val mDateTimeWeatherRunnable = Runnable {
+    private val mDateTimeWeatherRunnable = {
         // Date, time
         val now = System.currentTimeMillis()
         val date = DateUtils.formatDateTime(mContext, now, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_SHOW_YEAR)
