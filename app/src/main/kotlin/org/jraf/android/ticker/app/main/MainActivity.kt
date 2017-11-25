@@ -25,6 +25,7 @@
 package org.jraf.android.ticker.app.main
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
 import android.graphics.Color
@@ -60,6 +61,7 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
+@SuppressLint("ShowToast")
 class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
 
     companion object {
@@ -85,7 +87,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
 
-        mBinding = DataBindingUtil.setContentView<MainBinding>(this, R.layout.main)
+        mBinding = DataBindingUtil.setContentView(this, R.layout.main)
 
         mBinding.root.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -167,7 +169,7 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         var fontSize = (smallSide / 10f).toInt()
         mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
 
-        mBinding.txtTicker.text = tickerText;
+        mBinding.txtTicker.text = tickerText
 
         mBinding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
         while (mBinding.txtTicker.measuredHeight < rect.height()) {

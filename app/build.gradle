@@ -120,6 +120,7 @@ dependencies {
     // Support library
     implementation "com.android.support:appcompat-v7:$versions.supportLibrary"
     implementation "com.android.support:design:$versions.supportLibrary"
+    implementation "com.android.support:support-emoji-bundled:$versions.supportLibrary"
 
     // Play Services
     implementation "com.google.android.gms:play-services-location:$versions.playServices"

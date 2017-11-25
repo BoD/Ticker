@@ -24,6 +24,8 @@
  */
 package org.jraf.android.ticker.app
 
+import android.support.text.emoji.EmojiCompat
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig
 import org.jraf.android.ticker.BuildConfig
 import org.jraf.android.util.log.Log
 
@@ -37,5 +39,14 @@ class Application : android.app.Application() {
 
         // Log
         Log.init(this, TAG, BuildConfig.DEBUG_LOGS)
+
+        // Emoji compat
+        EmojiCompat.init(BundledEmojiCompatConfig(this)
+                .setReplaceAll(false)
+                .registerInitCallback(object : EmojiCompat.InitCallback() {
+                    override fun onInitialized() = Log.d()
+                    override fun onFailed(throwable: Throwable?) = Log.w(throwable, "Could not init EmojiCompat")
+                })
+        )
     }
 }
