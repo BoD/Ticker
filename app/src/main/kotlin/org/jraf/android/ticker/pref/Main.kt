@@ -22,14 +22,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.jraf.android.ticker.pref;
+package org.jraf.android.ticker.pref
 
-import org.jraf.android.prefs.Prefs;
+import org.jraf.android.prefs.Prefs
 
 @Prefs
-public class Main {
-    Float brightnessDay;
-    Float brightnessNight;
-    Float backgroundOpacityDay;
-    Float backgroundOpacityNight;
+class Main {
+    var brightnessDay: Float? = null
+    var brightnessNight: Float? = null
+    var backgroundOpacityDay: Float? = null
+    var backgroundOpacityNight: Float? = null
 }

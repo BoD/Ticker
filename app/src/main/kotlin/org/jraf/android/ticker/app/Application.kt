@@ -24,6 +24,7 @@
  */
 package org.jraf.android.ticker.app
 
+import org.jraf.android.ticker.BuildConfig
 import org.jraf.android.util.log.Log
 
 class Application : android.app.Application() {
@@ -35,6 +36,6 @@ class Application : android.app.Application() {
         super.onCreate()
 
         // Log
-        Log.init(this, TAG)
+        Log.init(this, TAG, BuildConfig.DEBUG_LOGS)
     }
 }

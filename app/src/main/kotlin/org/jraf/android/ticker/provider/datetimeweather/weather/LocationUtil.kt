@@ -25,6 +25,7 @@
 package org.jraf.android.ticker.provider.datetimeweather.weather
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
@@ -121,6 +122,7 @@ object LocationUtil {
         return location.get()
     }
 
+    @SuppressLint("MissingPermission")
     @WorkerThread
     private fun getCurrentAndroidLocation(context: Context, timeout: Long, unit: TimeUnit): Location? {
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager

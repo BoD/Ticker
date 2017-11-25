@@ -24,6 +24,7 @@
  */
 package org.jraf.android.ticker.notificationbroadcaster.app;
 
+import org.jraf.android.ticker.notificationbroadcaster.BuildConfig;
 import org.jraf.android.util.log.Log;
 
 public class Application extends android.app.Application {
@@ -34,6 +35,6 @@ public class Application extends android.app.Application {
         super.onCreate();
 
         // Log
-        Log.init(this, TAG);
+        Log.init(this, TAG, BuildConfig.DEBUG_LOGS);
     }
 }

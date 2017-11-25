@@ -37,7 +37,6 @@ android {
         // Setting this to false enables the png generation at buildtime
         // (see http://android-developers.blogspot.fr/2016/02/android-support-library-232.html)
         vectorDrawables.useSupportLibrary = false
-
     }
 
     signingConfigs {
