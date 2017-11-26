@@ -38,12 +38,6 @@ enum class WeatherCondition constructor(private val mCode: String, val symbol: S
     PARTLY_CLOUDY_NIGHT("partly-cloudy-night", "☁\uD83C\uDF19");
 
     companion object {
-        fun fromCode(code: String): WeatherCondition {
-            for (weatherCondition in values()) {
-                if (weatherCondition.mCode == code) return weatherCondition
-            }
-
-            return UNKNOWN
-        }
+        fun fromCode(code: String) = values().firstOrNull { it.mCode == code } ?: UNKNOWN
     }
 }

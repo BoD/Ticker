@@ -48,7 +48,9 @@ object EmojiUtil {
             "\uD83C\uDF21" to R.drawable.emoji_u1f321,
             "\uD83C\uDF24" to R.drawable.emoji_u1f324)
 
-    fun CharSequence.replaceEmojis(textView: TextView): Spannable {
+    private const val SIZE_FACTOR = .65
+
+    fun CharSequence.replaceEmojisWithImageSpans(textView: TextView): Spannable {
         val res = SpannableStringBuilder(this)
 
         for ((key, drawableResId) in DRAWABLE_MAP) {
@@ -56,8 +58,8 @@ object EmojiUtil {
             while (index != -1) {
                 val icon = ResourcesCompat.getDrawable(textView.resources, drawableResId, null)!!
                 val height = textView.lineHeight
-                icon.setBounds(0, 0, height, height)
-                val imageSpan = ImageSpan(icon, DynamicDrawableSpan.ALIGN_BOTTOM)
+                icon.setBounds(0, 0, (height * SIZE_FACTOR).toInt(), (height * SIZE_FACTOR).toInt())
+                val imageSpan = ImageSpan(icon, DynamicDrawableSpan.ALIGN_BASELINE)
                 res.setSpan(imageSpan, index, index + key.length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
 
                 index = TextUtils.indexOf(this, key, index + 1)
@@ -66,4 +68,13 @@ object EmojiUtil {
 
         return res
     }
+
+    fun CharSequence.replaceEmojisWithSmiley(): CharSequence {
+        var res = this
+        for (key in DRAWABLE_MAP.keys) {
+            res = res.toString().replace(key, "\uD83D\uDE00")
+        }
+        return res
+    }
+
 }

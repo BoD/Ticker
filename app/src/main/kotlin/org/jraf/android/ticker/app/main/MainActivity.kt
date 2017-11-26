@@ -55,7 +55,8 @@ import org.jraf.android.ticker.message.MessageQueue
 import org.jraf.android.ticker.pref.MainPrefs
 import org.jraf.android.ticker.provider.datetimeweather.weather.LocationUtil
 import org.jraf.android.ticker.provider.manager.ProviderManager
-import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojis
+import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
+import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.util.log.Log
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -183,9 +184,12 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     private fun setTickerText(tickerText: CharSequence) {
-        val text = tickerText.replaceEmojis(mBinding.txtTicker)
+        // Adjust the font size to fit the screen.
+        // Before we do this, we replace emojis with '😀' which is a wide character.
+        // This allows for the ImageSpan sizes of the replaced emojis to be accounted for.
+        adjustFontSize(tickerText.replaceEmojisWithSmiley())
 
-        adjustFontSize(text)
+        val text = tickerText.replaceEmojisWithImageSpans(mBinding.txtTicker)
 
         // Change the color randomly
         val hsv = FloatArray(3)
