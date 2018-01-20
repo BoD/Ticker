@@ -70,18 +70,21 @@ class BtcProvider : Provider {
     }
 
     private val mBtcRunnable = {
-        val connection = URL(URL_API).openConnection() as HttpURLConnection
-        val value = try {
-            val jsonStr = connection.inputStream.bufferedReader().readText()
-            val rootJson: JsonObject = Parser().parse(StringBuilder(jsonStr)) as JsonObject
-            rootJson.obj("EUR")?.double("15m")
-        } finally {
-            connection.disconnect()
-        }
+        try {
+            val connection = URL(URL_API).openConnection() as HttpURLConnection
+            val value = try {
+                val jsonStr = connection.inputStream.bufferedReader().readText()
+                val rootJson: JsonObject = Parser().parse(StringBuilder(jsonStr)) as JsonObject
+                rootJson.obj("EUR")?.double("15m")
+            } finally {
+                connection.disconnect()
+            }
 
-        // Add urgently at once
-        if (value != null) {
-            mCallbacks.addUrgent(mContext.getString(R.string.btc_value, value.toInt()))
+            // Add urgently at once
+            if (value != null) {
+                mCallbacks.addUrgent(mContext.getString(R.string.btc_value, value.toInt()))
+            }
+        } catch (ignored: Exception) {
         }
 
         startBtc()

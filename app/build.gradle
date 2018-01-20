@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 if (buildProperties.enableFabric.toBoolean()) apply plugin: 'io.fabric'
-//apply plugin: 'com.getkeepsafe.dexcount'
+apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
     compileSdkVersion versions.compileSdk
@@ -145,9 +145,6 @@ dependencies {
     
     // FRC
     implementation "ca.rmen:lib-french-revolutionary-calendar:$versions.libFrc"
-
-    // Necessary to have Kotlin and dataBinding at the same time
-    kapt "com.android.databinding:compiler:$versions.androidGradlePlugin" // <- Ici
 
     // Rx
 //    implementation "io.reactivex.rxjava2:rxandroid:$versions.rxAndroid"

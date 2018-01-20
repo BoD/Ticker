@@ -10,33 +10,32 @@ buildscript {
     // Versions used across modules
     ext.versions = [:]
     ext.versions.with {
-//        androidGradlePlugin = '2.4.0-alpha7'
-        androidGradlePlugin = '3.1.0-alpha04'
+        androidGradlePlugin = '3.1.0-alpha08'
         gradleVersionsPlugin = '0.17.0'
-        fabricPlugin = '1.24.5'
-        dexCountPlugin = '0.8.1'
+        fabricPlugin = '1.25.1'
+        dexCountPlugin = '0.8.2'
         libFrc = '1.8.0'
 
         compileSdk = 27
         targetSdk = 27
 
-        buildTools = '27.0.1'
-        kotlin = '1.1.61'
-        supportLibrary = '27.0.1'
-        playServices = '11.6.0'
+        buildTools = '27.0.3'
+        kotlin = '1.2.20'
+        supportLibrary = '27.0.2'
+        playServices = '11.8.0'
         espresso = '3.0.1'
         junit = '4.12'
         robolectric = '3.5.1'
         fest = '2.0M10'
         rxJava = '2.1.6'
         rxAndroid = '2.0.1'
-        crashlytics = '2.7.1'
+        crashlytics = '2.8.0'
         prefs = '1.2.2'
         okHttp = '3.9.0'
         twitter4j = '4.0.6'
         forecastIo = '1.6.0'
         sunriseSunset = '1.1.0'
-        klaxon = '0.30'
+        klaxon = '2.0.11'
     }
 
     repositories {
@@ -67,15 +66,15 @@ allprojects {
 
     // Force using our version of the support libraries, even for those we don't depend on directly (transitive dependencies)
     configurations.all {
-        resolutionStrategy {
-            eachDependency { details ->
-                if (details.requested.group == 'com.android.support'
-                        && details.requested.name != 'multidex'
-                        && details.requested.name != 'multidex-instrumentation') {
-                    details.useVersion versions.supportLibrary
-                }
-            }
-        }
+//        resolutionStrategy {
+//            eachDependency { details ->
+//                if (details.requested.group == 'com.android.support'
+//                        && details.requested.name != 'multidex'
+//                        && details.requested.name != 'multidex-instrumentation') {
+//                    details.useVersion versions.supportLibrary
+//                }
+//            }
+//        }
     }
 
     // Show a report in the log when running tests
@@ -91,7 +90,7 @@ task clean(type: Delete) {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.4-rc-2'
+    gradleVersion = '4.4.1'
     distributionType = Wrapper.DistributionType.ALL
 }
 
