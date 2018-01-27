@@ -11,3 +11,6 @@
 
 # Jraf Util
 -dontwarn org.jraf.android.util.**
+
+# Klaxon
+-dontwarn kotlin.reflect.**
