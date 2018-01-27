@@ -14,3 +14,6 @@
 
 # Klaxon
 -dontwarn kotlin.reflect.**
+
+# Libticker
+-keep class org.jraf.libticker.plugin.** { *; }
