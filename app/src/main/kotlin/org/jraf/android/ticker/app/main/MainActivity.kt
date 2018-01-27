@@ -24,10 +24,7 @@
  */
 package org.jraf.android.ticker.app.main
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
@@ -36,10 +33,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.support.design.widget.Snackbar
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
+import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
@@ -51,19 +45,20 @@ import android.widget.Toast
 import ca.rmen.sunrisesunset.SunriseSunset
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.databinding.MainBinding
-import org.jraf.android.ticker.message.MessageQueue
 import org.jraf.android.ticker.pref.MainPrefs
-import org.jraf.android.ticker.provider.datetimeweather.weather.LocationUtil
-import org.jraf.android.ticker.provider.manager.ProviderManager
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
-import org.jraf.android.util.log.Log
+import org.jraf.android.ticker.util.location.IpApiClient
+import org.jraf.libticker.message.BasicMessageQueue
+import org.jraf.libticker.message.MessageQueue
+import org.jraf.libticker.plugin.api.PluginConfiguration
+import org.jraf.libticker.plugin.manager.PluginManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 @SuppressLint("ShowToast")
-class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
+class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val QUEUE_SIZE = 40
@@ -71,16 +66,18 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
         private val UPDATE_TEXT_RATE_MS = TimeUnit.SECONDS.toMillis(12)
-        private val TYPEWRITER_EFFECT_DELAY_MS = 33L
+        private const val TYPEWRITER_EFFECT_DELAY_MS = 33L
     }
 
-    private lateinit var mBinding: MainBinding
-    private lateinit var mTextQueue: MessageQueue
-    private val mToast: Toast by lazy {
+    private lateinit var binding: MainBinding
+    private lateinit var messageQueue: MessageQueue
+    private lateinit var pluginManager: PluginManager
+    private val toast: Toast by lazy {
         Toast.makeText(this, "", Toast.LENGTH_SHORT)
     }
-    private var mLocation: Location? = null
+    private var location: Location? = null
 
+    @SuppressLint("InlinedApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -88,9 +85,9 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
             window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         }
 
-        mBinding = DataBindingUtil.setContentView(this, R.layout.main)
+        binding = DataBindingUtil.setContentView(this, R.layout.main)
 
-        mBinding.root.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+        binding.root.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -99,67 +96,62 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
                 or View.SYSTEM_UI_FLAG_LOW_PROFILE)
 
         // Set the custom font
-        mBinding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/" + FONT_NAME)
+        binding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/" + FONT_NAME)
 
-        mTextQueue = MessageQueue(QUEUE_SIZE)
+        messageQueue = BasicMessageQueue(QUEUE_SIZE)
+        pluginManager = PluginManager(messageQueue)
+            .addPlugins(
+                "org.jraf.libticker.plugin.datetime.DateTimePlugin" to null,
+                "org.jraf.libticker.plugin.frc.FrcPlugin" to null,
+                "org.jraf.libticker.plugin.weather.WeatherPlugin" to PluginConfiguration().apply {
+                    put("apiKey", getString(R.string.apiKeyForecastIo))
+                },
+                "org.jraf.libticker.plugin.btc.BtcPlugin" to null,
+                "org.jraf.libticker.plugin.twitter.TwitterPlugin" to PluginConfiguration().apply {
+                    put(
+                        "oAuthConsumerKey",
+                        getString(R.string.apiKeyTwitterOauthConsumerKey)
+                    )
+                    put(
+                        "oAuthConsumerSecret",
+                        getString(R.string.apiKeyTwitterOauthConsumerSecret)
+                    )
+                    put(
+                        "oAuthAccessToken",
+                        getString(R.string.apiKeyTwitterOauthAccessToken)
+                    )
+                    put(
+                        "oAuthAccessTokenSecret",
+                        getString(R.string.apiKeyTwitterOauthAccessTokenSecret)
+                    )
+                }
+            )
+
+
         setTickerText(getString(R.string.main_fetching))
 
-        mBinding.root.setOnTouchListener(mAdjustOnTouchListener)
+        binding.root.setOnTouchListener(mAdjustOnTouchListener)
     }
 
     override fun onResume() {
         super.onResume()
-        val hasPermissions = checkPermissions()
-        if (hasPermissions) onPermissionsGranted()
-    }
-
-    private fun onPermissionsGranted() {
         thread {
-            mLocation = LocationUtil.getRecentLocation(MainActivity@ this, 30, TimeUnit.SECONDS)
+            location = IpApiClient().currentLocation
+            Log.d("location=$location")
         }
 
-        ProviderManager.startProviders(this, mTextQueue)
+        pluginManager.start()
 
-        mUpdateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
-        mUpdateTextHandler.sendEmptyMessage(0)
+        updateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
+        updateTextHandler.sendEmptyMessage(0)
     }
 
     override fun onPause() {
-        ProviderManager.stopProviders()
-        mUpdateBrightnessAndBackgroundOpacityHandler.removeCallbacksAndMessages(null)
-        mUpdateTextHandler.removeCallbacksAndMessages(null)
+        pluginManager.stop()
+        updateBrightnessAndBackgroundOpacityHandler.removeCallbacksAndMessages(null)
+        updateTextHandler.removeCallbacksAndMessages(null)
         super.onPause()
     }
-
-
-    //--------------------------------------------------------------------------
-    // region Permissions.
-    //--------------------------------------------------------------------------
-
-    private fun checkPermissions(): Boolean {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_PERMISSION_LOCATION)
-            return false
-        }
-        return true
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            REQUEST_PERMISSION_LOCATION -> if (grantResults.size == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted
-                onPermissionsGranted()
-            } else {
-                Log.w("Permission not granted: show a snackbar")
-                Snackbar.make(mBinding.root, R.string.main_permissionNotGranted, Snackbar.LENGTH_INDEFINITE).show()
-            }
-
-            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
-    }
-
-    // endregion
-
 
     private fun adjustFontSize(tickerText: CharSequence) {
         val rect = Rect()
@@ -168,28 +160,30 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
         // A font size of about ~1/8 to 1/10 screen small side is a sensible value for the starting font size
         var fontSize = (smallSide / 10f).toInt()
-        mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
+        binding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
 
-        mBinding.txtTicker.text = tickerText
+        binding.txtTicker.text = tickerText
 
-        mBinding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
-        while (mBinding.txtTicker.measuredHeight < rect.height()) {
+        binding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
+        while (binding.txtTicker.measuredHeight < rect.height()) {
             fontSize += 2
-            mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
-            mBinding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
+            binding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
+            binding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
         }
         fontSize -= 2
-        mBinding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
-        mBinding.txtTicker.text = null
+        binding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
+        binding.txtTicker.text = null
     }
 
-    private fun setTickerText(tickerText: CharSequence) {
+    private fun setTickerText(text: String) {
+        val formattedText = Html.fromHtml(text)
+
         // Adjust the font size to fit the screen.
         // Before we do this, we replace emojis with '😀' which is a wide character.
         // This allows for the ImageSpan sizes of the replaced emojis to be accounted for.
-        adjustFontSize(tickerText.replaceEmojisWithSmiley())
+        adjustFontSize(formattedText.replaceEmojisWithSmiley())
 
-        val text = tickerText.replaceEmojisWithImageSpans(mBinding.txtTicker)
+        val text = formattedText.replaceEmojisWithImageSpans(binding.txtTicker)
 
         // Change the color randomly
         val hsv = FloatArray(3)
@@ -197,13 +191,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
         hsv[1] = .75f
         hsv[2] = .75f
         val color = Color.HSVToColor(hsv)
-        mBinding.txtTicker.setTextColor(color)
+        binding.txtTicker.setTextColor(color)
 
         for (i in 0 until text.length) {
-            mBinding.txtTicker.postDelayed({
+            binding.txtTicker.postDelayed({
                 val truncatedText = SpannableStringBuilder(text)
                 truncatedText.setSpan(ForegroundColorSpan(Color.TRANSPARENT), i + 1, text.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
-                mBinding.txtTicker.text = truncatedText
+                binding.txtTicker.text = truncatedText
             }, TYPEWRITER_EFFECT_DELAY_MS * i)
         }
     }
@@ -246,34 +240,38 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     /**
      * Handler to update the text periodically.
      */
-    private val mUpdateTextHandler = object : Handler() {
-        override fun handleMessage(message: Message) {
-            val newText = mTextQueue.next
-            if (newText != null) setTickerText(newText)
+    private val updateTextHandler =
+        @SuppressLint("HandlerLeak")
+        object : Handler() {
+            override fun handleMessage(message: Message) {
+                val newText = messageQueue.next
+                if (newText != null) setTickerText(newText)
 
-            // Reschedule
-            sendEmptyMessageDelayed(0, UPDATE_TEXT_RATE_MS)
+                // Reschedule
+                sendEmptyMessageDelayed(0, UPDATE_TEXT_RATE_MS)
+            }
         }
-    }
 
     /**
      * Handler to update the brightness / background opacity periodically.
      */
-    private val mUpdateBrightnessAndBackgroundOpacityHandler = object : Handler() {
-        override fun handleMessage(message: Message) {
-            val mainPrefs = MainPrefs.get(this@MainActivity)
-            if (isDay()) {
-                mainPrefs.brightnessDay?.let { setBrightness(it) }
-                mainPrefs.backgroundOpacityDay?.let { setBackgroundOpacity(it) }
-            } else {
-                mainPrefs.brightnessNight?.let { setBrightness(it) }
-                mainPrefs.backgroundOpacityNight?.let { setBackgroundOpacity(it) }
-            }
+    private val updateBrightnessAndBackgroundOpacityHandler =
+        @SuppressLint("HandlerLeak")
+        object : Handler() {
+            override fun handleMessage(message: Message) {
+                val mainPrefs = MainPrefs.get(this@MainActivity)
+                if (isDay()) {
+                    mainPrefs.brightnessDay?.let { setBrightness(it) }
+                    mainPrefs.backgroundOpacityDay?.let { setBackgroundOpacity(it) }
+                } else {
+                    mainPrefs.brightnessNight?.let { setBrightness(it) }
+                    mainPrefs.backgroundOpacityNight?.let { setBackgroundOpacity(it) }
+                }
 
-            // Reschedule
-            sendEmptyMessageDelayed(0, UPDATE_BRIGHTNESS_RATE_MS)
+                // Reschedule
+                sendEmptyMessageDelayed(0, UPDATE_BRIGHTNESS_RATE_MS)
+            }
         }
-    }
 
     private fun persistBrightness(value: Float) {
         val mainPrefs = MainPrefs.get(this)
@@ -294,13 +292,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
     }
 
     private fun isDay(): Boolean {
-        val location = mLocation
-        if (location == null) {
+        val location = location
+        return if (location == null) {
             val now = Calendar.getInstance()
             val hour = now.get(Calendar.HOUR_OF_DAY)
-            return hour in 8..10
+            hour in 8..10
         } else {
-            return SunriseSunset.isDay(location.latitude, location.longitude)
+            SunriseSunset.isDay(location.latitude, location.longitude)
         }
     }
 
@@ -312,13 +310,13 @@ class MainActivity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsRes
 
     private fun setBackgroundOpacity(value: Float) {
         val boundValue = if (value < 0) 0F else if (value > 1) 1F else value
-        mBinding.backgroundOpacity.setBackgroundColor(Color.argb((255f * (1f - boundValue)).toInt(), 0, 0, 0))
+        binding.backgroundOpacity.setBackgroundColor(Color.argb((255f * (1f - boundValue)).toInt(), 0, 0, 0))
     }
 
 
     private fun toast(ratio: Float, textRes: Int) {
         val text = getString(textRes, (ratio * 100).toInt())
-        with(mToast) {
+        with(toast) {
             setText(text)
             duration = Toast.LENGTH_SHORT
             show()

@@ -20,7 +20,6 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="@string/main_fetching"
-            android:textColor="@color/tweetText"
             android:textSize="32sp"
             android:textStyle="bold" />
 

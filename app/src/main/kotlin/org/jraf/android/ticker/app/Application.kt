@@ -24,14 +24,11 @@
  */
 package org.jraf.android.ticker.app
 
-import android.support.text.emoji.EmojiCompat
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig
 import org.jraf.android.ticker.BuildConfig
-import org.jraf.android.util.log.Log
 
-class Application : android.app.Application() {
+class Application : MultiDexApplication() {
     companion object {
-        private val TAG = "Ticker"
+        private const val TAG = "Ticker"
     }
 
     override fun onCreate() {

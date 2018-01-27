@@ -6,13 +6,4 @@
     <string name="main_brightness_toast">Brightness: %s%%</string>
     <string name="main_backgroundOpacity_toast">Background: %s%%</string>
 
-    <string name="weather_now">%1$s %2$.1fºC</string>
-    <string name="weather_min">▼ %1$.1fºC</string>
-    <string name="weather_max">▲ %1$.1fºC</string>
-
-    <string name="frc_date">Le %1$s %2$d %3$s de l\'an %4$d</string>
-    <string name="frc_object">%1$s du jour : %2$s</string>
-
-    <string name="btc_value">1฿ = %1$d€</string>
-
 </resources>
