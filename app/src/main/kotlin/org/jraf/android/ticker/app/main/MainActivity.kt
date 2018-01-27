@@ -25,6 +25,7 @@
 package org.jraf.android.ticker.app.main
 
 import android.annotation.SuppressLint
+import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
@@ -33,6 +34,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
+import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -49,6 +51,7 @@ import org.jraf.android.ticker.pref.MainPrefs
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
+import org.jraf.android.util.log.Log
 import org.jraf.libticker.message.BasicMessageQueue
 import org.jraf.libticker.message.MessageQueue
 import org.jraf.libticker.plugin.api.PluginConfiguration

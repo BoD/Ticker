@@ -1,9 +1,6 @@
 *.iml
 .gradle
 local.properties
-.idea/workspace.xml
-.idea/libraries
-.idea/codeStyleSettings.xml
 .DS_Store
 build
 captures
@@ -11,3 +8,15 @@ build.number
 build.properties
 projectFilesBackup
 etc/apk
+.idea/libraries
+.idea/modules
+.idea/compiler.xml
+.idea/gradle.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+.idea/caches
+.idea/encodings.xml
+.idea/inspectionProfiles
+.idea/runConfigurations.xml
