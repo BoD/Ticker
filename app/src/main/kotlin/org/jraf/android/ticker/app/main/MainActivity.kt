@@ -45,9 +45,6 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import ca.rmen.sunrisesunset.SunriseSunset
-import org.jraf.android.ticker.R
-import org.jraf.android.ticker.databinding.MainBinding
-import org.jraf.android.ticker.pref.MainPrefs
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
@@ -84,7 +81,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
         }
 
         binding = DataBindingUtil.setContentView(this, R.layout.main)
@@ -166,11 +166,21 @@ class MainActivity : AppCompatActivity() {
 
         binding.txtTicker.text = tickerText
 
-        binding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
+        binding.txtTicker.measure(
+            View.MeasureSpec.makeMeasureSpec(
+                rect.width(),
+                View.MeasureSpec.AT_MOST
+            ), View.MeasureSpec.UNSPECIFIED
+        )
         while (binding.txtTicker.measuredHeight < rect.height()) {
             fontSize += 2
             binding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
-            binding.txtTicker.measure(View.MeasureSpec.makeMeasureSpec(rect.width(), View.MeasureSpec.AT_MOST), View.MeasureSpec.UNSPECIFIED)
+            binding.txtTicker.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    rect.width(),
+                    View.MeasureSpec.AT_MOST
+                ), View.MeasureSpec.UNSPECIFIED
+            )
         }
         fontSize -= 2
         binding.txtTicker.setTextSize(TypedValue.COMPLEX_UNIT_PX, fontSize.toFloat())
@@ -198,7 +208,12 @@ class MainActivity : AppCompatActivity() {
         for (i in 0 until text.length) {
             binding.txtTicker.postDelayed({
                 val truncatedText = SpannableStringBuilder(text)
-                truncatedText.setSpan(ForegroundColorSpan(Color.TRANSPARENT), i + 1, text.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+                truncatedText.setSpan(
+                    ForegroundColorSpan(Color.TRANSPARENT),
+                    i + 1,
+                    text.length,
+                    Spannable.SPAN_INCLUSIVE_INCLUSIVE
+                )
                 binding.txtTicker.text = truncatedText
             }, TYPEWRITER_EFFECT_DELAY_MS * i)
         }
@@ -305,14 +320,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setBrightness(value: Float) {
+        val sanitizedValue = value.coerceIn(0F, 1F)
+        val brightnessValue = (sanitizedValue - .5F).coerceAtLeast(0F) * 2F
         val layout = window.attributes
-        layout.screenBrightness = if (value < 0) 0F else if (value > 1) 1F else value
+        layout.screenBrightness = brightnessValue
         window.attributes = layout
+        val alphaValue = sanitizedValue.coerceAtMost(.5F) * 2F
+        binding.txtTicker.alpha = alphaValue
     }
 
     private fun setBackgroundOpacity(value: Float) {
         val boundValue = if (value < 0) 0F else if (value > 1) 1F else value
-        binding.backgroundOpacity.setBackgroundColor(Color.argb((255f * (1f - boundValue)).toInt(), 0, 0, 0))
+        binding.backgroundOpacity.setBackgroundColor(
+            Color.argb(
+                (255f * (1f - boundValue)).toInt(),
+                0,
+                0,
+                0
+            )
+        )
     }
 
 
