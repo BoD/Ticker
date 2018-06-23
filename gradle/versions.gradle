@@ -42,7 +42,7 @@ versions.testing = testing
 
 // Other dependencies
 versions.with {
-    kotlin = '1.2.50'
+    kotlin = '1.2.40'
     supportLibrary = '27.1.1'
     archLifecycle = '1.1.1'
     archRoom = '1.1.0-rc1'
@@ -55,7 +55,6 @@ versions.with {
     libticker = '1.0.0'
     multidex = '1.0.3'
     slf4j = '1.7.25'
-
 }
 
 ext.versions = versions
