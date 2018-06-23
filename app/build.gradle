@@ -5,13 +5,13 @@ if (buildProperties.enableFabric.toBoolean()) apply plugin: 'io.fabric'
 apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
-    compileSdkVersion versions.compileSdk
-    buildToolsVersion versions.buildTools
+    compileSdkVersion versions.build.compileSdk
+    buildToolsVersion versions.build.tools
 
     defaultConfig {
         applicationId 'org.jraf.android.ticker'
-        minSdkVersion 14
-        targetSdkVersion versions.targetSdk
+        minSdkVersion versions.build.minSdk
+        targetSdkVersion versions.build.targetSdk
         versionCode buildNumber
         versionName buildProperties.versionName
 
@@ -112,13 +112,13 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     // Tests
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:$versions.espresso", {
+    androidTestImplementation("com.android.support.test.espresso:espresso-core:$versions.testing.espresso", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testImplementation "junit:junit:$versions.junit"
+    testImplementation "junit:junit:$versions.testing.junit"
 
     // Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$versions.kotlin"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
 
     // Support library
     implementation "com.android.support:appcompat-v7:$versions.supportLibrary"
