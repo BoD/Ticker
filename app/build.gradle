@@ -145,6 +145,9 @@ dependencies {
         exclude group: 'org.json', module: 'json'
     }
 
+    // Klaxon
+    implementation "com.beust:klaxon:$versions.klaxon"
+
     // Slf4j
     implementation "org.slf4j:slf4j-android:$versions.slf4j"
 }

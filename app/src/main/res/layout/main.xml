@@ -18,11 +18,12 @@
             android:id="@+id/txtTicker"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:breakStrategy="high_quality"
             android:gravity="center"
             android:includeFontPadding="false"
+            android:lineSpacingMultiplier=".9"
             android:text="@string/main_fetching"
-            android:textSize="32sp"
-            android:textStyle="bold" />
+            android:textSize="32sp" />
 
     </FrameLayout>
 </layout>

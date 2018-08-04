@@ -45,6 +45,9 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import ca.rmen.sunrisesunset.SunriseSunset
+import org.jraf.android.ticker.R
+import org.jraf.android.ticker.databinding.MainBinding
+import org.jraf.android.ticker.pref.MainPrefs
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
@@ -195,7 +198,7 @@ class MainActivity : AppCompatActivity() {
         // This allows for the ImageSpan sizes of the replaced emojis to be accounted for.
         adjustFontSize(formattedText.replaceEmojisWithSmiley())
 
-        val text = formattedText.replaceEmojisWithImageSpans(binding.txtTicker)
+        val textWithSpans: Spannable = formattedText.replaceEmojisWithImageSpans(binding.txtTicker)
 
         // Change the color randomly
         val hsv = FloatArray(3)
@@ -205,13 +208,13 @@ class MainActivity : AppCompatActivity() {
         val color = Color.HSVToColor(hsv)
         binding.txtTicker.setTextColor(color)
 
-        for (i in 0 until text.length) {
+        for (i in 0 until textWithSpans.length) {
             binding.txtTicker.postDelayed({
-                val truncatedText = SpannableStringBuilder(text)
+                val truncatedText = SpannableStringBuilder(textWithSpans)
                 truncatedText.setSpan(
                     ForegroundColorSpan(Color.TRANSPARENT),
                     i + 1,
-                    text.length,
+                    textWithSpans.length,
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE
                 )
                 binding.txtTicker.text = truncatedText
@@ -261,8 +264,8 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("HandlerLeak")
         object : Handler() {
             override fun handleMessage(message: Message) {
-                val newText = messageQueue.next
-                if (newText != null) setTickerText(newText)
+                val newMessage = messageQueue.next
+                if (newMessage != null) setTickerText(newMessage.textFormatted)
 
                 // Reschedule
                 sendEmptyMessageDelayed(0, UPDATE_TEXT_RATE_MS)

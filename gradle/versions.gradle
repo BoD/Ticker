@@ -4,11 +4,11 @@ def versions = [:]
 // Plugins
 def plugins = [:]
 plugins.with {
-    androidGradle = '3.2.0-beta01'
+    androidGradle = '3.3.0-alpha04'
     gradleVersions = '0.20.0'
     fabric = '1.25.4'
     dexCount = '0.8.3'
-    gmsStrictVersionMatcher = '1.0.2'
+    gmsStrictVersionMatcher = '1.0.3'
 }
 versions.plugins = plugins
 
@@ -22,7 +22,7 @@ versions.libs = libs
 // Build parameters
 def build = [:]
 build.with {
-    gradle = '4.8.1'
+    gradle = '4.9'
     compileSdk = 27
     targetSdk = 27
     minSdk = 14
@@ -42,7 +42,7 @@ versions.testing = testing
 
 // Other dependencies
 versions.with {
-    kotlin = '1.2.40'
+    kotlin = '1.2.60'
     supportLibrary = '27.1.1'
     archLifecycle = '1.1.1'
     archRoom = '1.1.0-rc1'
@@ -52,9 +52,10 @@ versions.with {
     rxAndroid = '2.0.2'
     crashlytics = '2.9.4'
     prefs = '1.2.2'
-    libticker = '1.0.0'
+    libticker = '1.1.0'
     multidex = '1.0.3'
     slf4j = '1.7.25'
+    klaxon = '3.0.6'
 }
 
 ext.versions = versions
