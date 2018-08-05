@@ -25,5 +25,17 @@
             android:text="@string/main_fetching"
             android:textSize="32sp" />
 
+        <ImageView
+            android:id="@+id/imgImage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitCenter" />
+
+        <View
+            android:id="@+id/foregroundOpacity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000" />
+
     </FrameLayout>
 </layout>

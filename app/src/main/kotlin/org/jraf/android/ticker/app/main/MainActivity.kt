@@ -29,6 +29,7 @@ import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -45,8 +46,14 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import ca.rmen.sunrisesunset.SunriseSunset
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.databinding.MainBinding
+import org.jraf.android.ticker.glide.GlideApp
 import org.jraf.android.ticker.pref.MainPrefs
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
@@ -67,8 +74,12 @@ class MainActivity : AppCompatActivity() {
         private const val QUEUE_SIZE = 50
         private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
-        private val UPDATE_TEXT_RATE_MS = TimeUnit.SECONDS.toMillis(14)
+        private val CHECK_QUEUE_RATE_MS = TimeUnit.SECONDS.toMillis(14)
+        private val SHOW_IMAGE_DURATION_MS = TimeUnit.SECONDS.toMillis(8)
         private const val TYPEWRITER_EFFECT_DELAY_MS = 33L
+
+        private const val MESSAGE_CHECK_QUEUE = 0
+        private const val MESSAGE_SHOW_TEXT = 1
     }
 
     private lateinit var binding: MainBinding
@@ -148,13 +159,13 @@ class MainActivity : AppCompatActivity() {
         pluginManager.start()
 
         updateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
-        updateTextHandler.sendEmptyMessage(0)
+        checkMessageQueueHandler.sendEmptyMessage(MESSAGE_CHECK_QUEUE)
     }
 
     override fun onPause() {
         pluginManager.stop()
         updateBrightnessAndBackgroundOpacityHandler.removeCallbacksAndMessages(null)
-        updateTextHandler.removeCallbacksAndMessages(null)
+        checkMessageQueueHandler.removeCallbacksAndMessages(null)
         super.onPause()
     }
 
@@ -191,6 +202,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setTickerText(text: String) {
+        if (binding.imgImage.alpha > 0F) {
+            binding.imgImage.animate().alpha(0F)
+        }
+
         val formattedText = Html.fromHtml(text)
 
         // Adjust the font size to fit the screen.
@@ -258,19 +273,78 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Handler to update the text periodically.
+     * Handler to check the messae queue periodically, and show the text and/or image.
      */
-    private val updateTextHandler =
+    private val checkMessageQueueHandler =
         @SuppressLint("HandlerLeak")
         object : Handler() {
             override fun handleMessage(message: Message) {
-                val newMessage = messageQueue.next
-                if (newMessage != null) setTickerText(newMessage.textFormatted)
+                when (message.what) {
+                    MESSAGE_CHECK_QUEUE -> {
+                        val newMessage = messageQueue.next
+                        if (newMessage == null) {
+                            // Check again later
+                            sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
+                            return
+                        }
 
-                // Reschedule
-                sendEmptyMessageDelayed(0, UPDATE_TEXT_RATE_MS)
+                        if (newMessage.imageUri != null) {
+                            // There is an image: show it now, and show the text later
+                            showImage(newMessage.imageUri!!)
+                            sendMessageDelayed(
+                                Message.obtain(this, MESSAGE_SHOW_TEXT, newMessage.textFormatted),
+                                SHOW_IMAGE_DURATION_MS
+                            )
+                        } else {
+                            // Just the text: show it now
+                            setTickerText(newMessage.textFormatted)
+
+                            // Reschedule
+                            sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
+                        }
+                    }
+
+                    MESSAGE_SHOW_TEXT -> {
+                        setTickerText(message.obj as String)
+
+                        // Reschedule
+                        sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
+                    }
+                }
             }
         }
+
+    private fun showImage(imageUri: String) {
+        Log.d("imageUri=$imageUri")
+        GlideApp.with(this)
+            .load(imageUri)
+            .fitCenter()
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .listener(object : RequestListener<Drawable> {
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
+
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    binding.txtTicker.text = null
+                    binding.imgImage.alpha = 1F
+                    binding.imgImage.setImageDrawable(null)
+                    return false
+                }
+            })
+            .into(binding.imgImage)
+    }
 
     /**
      * Handler to update the brightness / background opacity periodically.
@@ -329,14 +403,21 @@ class MainActivity : AppCompatActivity() {
         layout.screenBrightness = brightnessValue
         window.attributes = layout
         val alphaValue = sanitizedValue.coerceAtMost(.5F) * 2F
-        binding.txtTicker.alpha = alphaValue
+        binding.foregroundOpacity.setBackgroundColor(
+            Color.argb(
+                (255f * (1f - alphaValue)).toInt(),
+                0,
+                0,
+                0
+            )
+        )
     }
 
     private fun setBackgroundOpacity(value: Float) {
-        val boundValue = if (value < 0) 0F else if (value > 1) 1F else value
+        val sanitizedValue = value.coerceIn(0F, 1F)
         binding.backgroundOpacity.setBackgroundColor(
             Color.argb(
-                (255f * (1f - boundValue)).toInt(),
+                (255f * (1f - sanitizedValue)).toInt(),
                 0,
                 0,
                 0

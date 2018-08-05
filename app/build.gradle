@@ -150,6 +150,10 @@ dependencies {
 
     // Slf4j
     implementation "org.slf4j:slf4j-android:$versions.slf4j"
+
+    // Glide
+    implementation "com.github.bumptech.glide:glide:$versions.glide"
+    kapt "com.github.bumptech.glide:compiler:$versions.glide"
 }
 
 // Necessary for Prefs to work (see https://kotlinlang.org/docs/reference/kapt.html)
