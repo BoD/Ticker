@@ -23,8 +23,8 @@ versions.libs = libs
 def build = [:]
 build.with {
     gradle = '5.1-rc-3'
-    compileSdk = 27
-    targetSdk = 27
+    compileSdk = 28
+    targetSdk = 28
     minSdk = 14
 }
 versions.build = build
