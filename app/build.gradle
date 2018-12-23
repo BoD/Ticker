@@ -6,7 +6,6 @@ apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
     compileSdkVersion versions.build.compileSdk
-    buildToolsVersion versions.build.tools
 
     defaultConfig {
         applicationId 'org.jraf.android.ticker'
@@ -154,6 +153,9 @@ dependencies {
     // Glide
     implementation "com.github.bumptech.glide:glide:$versions.glide"
     kapt "com.github.bumptech.glide:compiler:$versions.glide"
+
+    // Sunrise/sunset
+    implementation "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
 }
 
 // Necessary for Prefs to work (see https://kotlinlang.org/docs/reference/kapt.html)
