@@ -24,7 +24,6 @@
  */
 package org.jraf.android.ticker.util.emoji
 
-import android.support.v4.content.res.ResourcesCompat
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -32,21 +31,23 @@ import android.text.TextUtils
 import android.text.style.DynamicDrawableSpan
 import android.text.style.ImageSpan
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import org.jraf.android.ticker.R
 
 object EmojiUtil {
     private val DRAWABLE_MAP = mapOf(
-            "☀" to R.drawable.emoji_u2600,
-            "☁" to R.drawable.emoji_u2601,
-            "\uD83C\uDF2B" to R.drawable.emoji_u1f32b,
-            "\u26F8" to R.drawable.emoji_u26f8,
-            "☂" to R.drawable.emoji_u2602,
-            "☃" to R.drawable.emoji_u2603,
-            "\u26C8" to R.drawable.emoji_u26c8,
-            "\uD83D\uDCA8" to R.drawable.emoji_u1f4a8,
-            "\uD83C\uDF19" to R.drawable.emoji_u1f319,
-            "\uD83C\uDF21" to R.drawable.emoji_u1f321,
-            "\uD83C\uDF24" to R.drawable.emoji_u1f324)
+        "☀" to R.drawable.emoji_u2600,
+        "☁" to R.drawable.emoji_u2601,
+        "\uD83C\uDF2B" to R.drawable.emoji_u1f32b,
+        "\u26F8" to R.drawable.emoji_u26f8,
+        "☂" to R.drawable.emoji_u2602,
+        "☃" to R.drawable.emoji_u2603,
+        "\u26C8" to R.drawable.emoji_u26c8,
+        "\uD83D\uDCA8" to R.drawable.emoji_u1f4a8,
+        "\uD83C\uDF19" to R.drawable.emoji_u1f319,
+        "\uD83C\uDF21" to R.drawable.emoji_u1f321,
+        "\uD83C\uDF24" to R.drawable.emoji_u1f324
+    )
 
     private const val SIZE_FACTOR = .65
 

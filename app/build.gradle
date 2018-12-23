@@ -14,7 +14,7 @@ android {
         versionCode buildNumber
         versionName buildProperties.versionName
 
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
         // For now we enable strict mode for all the configs
         buildConfigField 'boolean', 'STRICT_MODE', 'true'
@@ -111,7 +111,7 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     // Tests
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:$versions.testing.espresso", {
+    androidTestImplementation("androidx.test.espresso:espresso-core:$versions.testing.espresso", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testImplementation "junit:junit:$versions.testing.junit"
@@ -120,10 +120,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
 
     // Support library
-    implementation "com.android.support:appcompat-v7:$versions.supportLibrary"
-    implementation "com.android.support:design:$versions.supportLibrary"
-    implementation "com.android.support:support-emoji-bundled:$versions.supportLibrary"
-    implementation "com.android.support:multidex:$versions.multidex"
+    implementation "androidx.appcompat:appcompat:$versions.androidXAppcompat"
+    implementation "com.google.android.material:material:$versions.material"
+    implementation "androidx.emoji:emoji-bundled:$versions.androidXEmoji"
+    implementation "androidx.multidex:multidex:$versions.androidXMultidex"
 
     // Fabric / Crashlytics
     implementation("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") {

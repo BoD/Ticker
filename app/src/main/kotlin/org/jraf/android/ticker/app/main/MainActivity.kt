@@ -25,7 +25,6 @@
 package org.jraf.android.ticker.app.main
 
 import android.annotation.SuppressLint
-import android.databinding.DataBindingUtil
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
@@ -35,7 +34,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.support.v7.app.AppCompatActivity
 import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -45,6 +43,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import ca.rmen.sunrisesunset.SunriseSunset
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException

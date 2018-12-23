@@ -14,7 +14,7 @@
             android:layout_height="match_parent"
             android:background="#000" />
 
-        <android.support.text.emoji.widget.EmojiTextView
+        <androidx.emoji.widget.EmojiTextView
             android:id="@+id/txtTicker"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

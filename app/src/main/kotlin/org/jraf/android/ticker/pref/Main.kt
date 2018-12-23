@@ -26,7 +26,7 @@ package org.jraf.android.ticker.pref
 
 import org.jraf.android.prefs.Prefs
 
-@Prefs
+@Prefs(useAndroidX = true)
 class Main {
     var brightnessDay: Float? = null
     var brightnessNight: Float? = null

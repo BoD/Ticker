@@ -11,7 +11,7 @@ android {
         versionCode buildNumber
         versionName buildProperties.versionName
 
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
 
         // For now we enable strict mode for all the configs
         buildConfigField 'boolean', 'STRICT_MODE', 'true'
@@ -98,13 +98,13 @@ android.applicationVariants.all { variant ->
 
 dependencies {
     // Tests
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:$versions.testing.espresso", {
+    androidTestImplementation("androidx.test.espresso:espresso-core:$versions.testing.espresso", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     testImplementation "junit:junit:$versions.testing.junit"
 
     // Support library
-    implementation "com.android.support:appcompat-v7:$versions.supportLibrary"
+    implementation "androidx.appcompat:appcompat:$versions.androidXAppcompat"
 
     // Fabric / Crashlytics
     implementation("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") { transitive = true }

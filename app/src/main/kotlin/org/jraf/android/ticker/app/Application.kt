@@ -24,9 +24,9 @@
  */
 package org.jraf.android.ticker.app
 
-import android.support.multidex.MultiDexApplication
-import android.support.text.emoji.EmojiCompat
-import android.support.text.emoji.bundled.BundledEmojiCompatConfig
+import androidx.emoji.bundled.BundledEmojiCompatConfig
+import androidx.emoji.text.EmojiCompat
+import androidx.multidex.MultiDexApplication
 import org.jraf.android.ticker.BuildConfig
 import org.jraf.android.util.log.Log
 
@@ -47,7 +47,8 @@ class Application : MultiDexApplication() {
                 .setReplaceAll(false)
                 .registerInitCallback(object : EmojiCompat.InitCallback() {
                     override fun onInitialized() = Log.d()
-                    override fun onFailed(throwable: Throwable?) = Log.w(throwable, "Could not init EmojiCompat")
+                    override fun onFailed(throwable: Throwable?) =
+                        Log.w(throwable, "Could not init EmojiCompat")
                 })
         )
     }

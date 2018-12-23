@@ -25,11 +25,12 @@
 package org.jraf.android.ticker.notificationbroadcaster;
 
 import android.content.Context;
-import android.support.test.*;
-import android.support.test.runner.*;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import androidx.test.InstrumentationRegistry;
+import androidx.test.runner.AndroidJUnit4;
 
 import static org.junit.Assert.assertEquals;
 
