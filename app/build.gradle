@@ -82,6 +82,11 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+
+    packagingOptions {
+        pickFirst "META-INF/io.netty.versions.properties"
+        pickFirst "META-INF/INDEX.LIST"
+    }
 }
 
 android.applicationVariants.all { variant ->
@@ -119,6 +124,10 @@ dependencies {
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
 
+    // Rx
+    implementation "io.reactivex.rxjava2:rxjava:$versions.rxJava"
+    implementation "io.reactivex.rxjava2:rxkotlin:$versions.rxKotlin"
+
     // Support library
     implementation "androidx.appcompat:appcompat:$versions.androidXAppcompat"
     implementation "com.google.android.material:material:$versions.material"
@@ -137,12 +146,9 @@ dependencies {
 //    implementation 'org.jraf:jraf-android-util:1.0.0'
 
     // Libticker
-    implementation("org.jraf:libticker-core:$versions.libticker") {
-        exclude group: 'org.json', module: 'json'
-    }
-    implementation("org.jraf:libticker-plugins:$versions.libticker") {
-        exclude group: 'org.json', module: 'json'
-    }
+    implementation("org.jraf:libticker-core:$versions.libticker")
+    implementation("org.jraf:libticker-plugins:$versions.libticker")
+    implementation("org.jraf:libticker-httpconf:$versions.libticker")
 
     // Klaxon
     implementation "com.beust:klaxon:$versions.klaxon"
@@ -156,6 +162,8 @@ dependencies {
 
     // Sunrise/sunset
     implementation "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
+
+    implementation "org.jtwig:jtwig-core:5.87.0.RELEASE"
 }
 
 // Necessary for Prefs to work (see https://kotlinlang.org/docs/reference/kapt.html)

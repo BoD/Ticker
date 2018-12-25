@@ -2,6 +2,7 @@
     <string name="app_name">Ticker</string>
 
     <string name="main_fetching">Fetching…</string>
+    <string name="main_httpConfUrl">Configure this Ticker at %1$s</string>
     <string name="main_permissionNotGranted">Permission was not granted!</string>
     <string name="main_brightness_toast">Brightness: %s%%</string>
     <string name="main_backgroundOpacity_toast">Background: %s%%</string>

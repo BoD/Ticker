@@ -32,4 +32,5 @@ class Main {
     var brightnessNight: Float? = null
     var backgroundOpacityDay: Float? = null
     var backgroundOpacityNight: Float? = null
+    var pluginConfiguration: String? = null
 }

@@ -51,6 +51,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import org.jraf.android.ticker.BuildConfig
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.databinding.MainBinding
 import org.jraf.android.ticker.glide.GlideApp
@@ -59,9 +60,10 @@ import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
 import org.jraf.android.util.log.Log
+import org.jraf.libticker.httpconf.Configuration
+import org.jraf.libticker.httpconf.HttpConf
 import org.jraf.libticker.message.BasicMessageQueue
 import org.jraf.libticker.message.MessageQueue
-import org.jraf.libticker.plugin.api.PluginConfiguration
 import org.jraf.libticker.plugin.manager.PluginManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -71,6 +73,7 @@ import kotlin.concurrent.thread
 class MainActivity : AppCompatActivity() {
 
     companion object {
+        private const val APP_NAME = "BoD Ticker"
         private const val QUEUE_SIZE = 50
         private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
@@ -89,8 +92,11 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, "", Toast.LENGTH_SHORT)
     }
     private var location: Location? = null
+    private val mainPrefs by lazy {
+        MainPrefs.get(this)
+    }
 
-    @SuppressLint("InlinedApi")
+    @SuppressLint("InlinedApi", "CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -112,39 +118,31 @@ class MainActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LOW_PROFILE)
 
         // Set the custom font
-        binding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/" + FONT_NAME)
+        binding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/$FONT_NAME")
 
         messageQueue = BasicMessageQueue(QUEUE_SIZE)
         pluginManager = PluginManager(messageQueue)
-            .addPlugins(
-                "org.jraf.libticker.plugin.datetime.DateTimePlugin" to null,
-                "org.jraf.libticker.plugin.frc.FrcPlugin" to null,
-                "org.jraf.libticker.plugin.weather.WeatherPlugin" to PluginConfiguration().apply {
-                    put("apiKey", getString(R.string.apiKeyForecastIo))
-                },
-                "org.jraf.libticker.plugin.btc.BtcPlugin" to null,
-                "org.jraf.libticker.plugin.twitter.TwitterPlugin" to PluginConfiguration().apply {
-                    put(
-                        "oAuthConsumerKey",
-                        getString(R.string.apiKeyTwitterOauthConsumerKey)
-                    )
-                    put(
-                        "oAuthConsumerSecret",
-                        getString(R.string.apiKeyTwitterOauthConsumerSecret)
-                    )
-                    put(
-                        "oAuthAccessToken",
-                        getString(R.string.apiKeyTwitterOauthAccessToken)
-                    )
-                    put(
-                        "oAuthAccessTokenSecret",
-                        getString(R.string.apiKeyTwitterOauthAccessTokenSecret)
-                    )
-                }
+
+        // Load plugin configuration (if any)
+        if (mainPrefs.containsPluginConfiguration()) {
+            pluginManager.managePlugins(mainPrefs.pluginConfiguration!!, false)
+        }
+
+        // Persist plugin configuration
+        pluginManager.managedPluginsChanged.subscribe { jsonString ->
+            mainPrefs.pluginConfiguration = jsonString
+        }
+
+        // Http conf
+        val httpConf = HttpConf(
+            pluginManager,
+            Configuration(
+                appName = APP_NAME,
+                appVersion = "${BuildConfig.VERSION_NAME}/${BuildConfig.VERSION_CODE}"
             )
-
-
-        setTickerText(getString(R.string.main_fetching))
+        )
+        httpConf.start()
+        setTickerText(getString(R.string.main_httpConfUrl, httpConf.getUrl()))
 
         binding.root.setOnTouchListener(mAdjustOnTouchListener)
     }
@@ -156,14 +154,14 @@ class MainActivity : AppCompatActivity() {
             Log.d("location=$location")
         }
 
-        pluginManager.start()
+        pluginManager.startAllManagedPlugins()
 
         updateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
         checkMessageQueueHandler.sendEmptyMessage(MESSAGE_CHECK_QUEUE)
     }
 
     override fun onPause() {
-        pluginManager.stop()
+        pluginManager.stopAllManagedPlugins()
         updateBrightnessAndBackgroundOpacityHandler.removeCallbacksAndMessages(null)
         checkMessageQueueHandler.removeCallbacksAndMessages(null)
         super.onPause()
@@ -206,6 +204,7 @@ class MainActivity : AppCompatActivity() {
             binding.imgImage.animate().alpha(0F)
         }
 
+        @Suppress("DEPRECATION")
         val formattedText = Html.fromHtml(text)
 
         // Adjust the font size to fit the screen.
@@ -239,7 +238,7 @@ class MainActivity : AppCompatActivity() {
 
 
     //--------------------------------------------------------------------------
-    // region Brightness and backgroind opacity.
+    // region Brightness and background opacity.
     //--------------------------------------------------------------------------
 
     private val mAdjustOnTouchListener = View.OnTouchListener { v, event ->
@@ -273,7 +272,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Handler to check the messae queue periodically, and show the text and/or image.
+     * Handler to check the message queue periodically, and show the text and/or image.
      */
     private val checkMessageQueueHandler =
         @SuppressLint("HandlerLeak")
@@ -353,7 +352,6 @@ class MainActivity : AppCompatActivity() {
         @SuppressLint("HandlerLeak")
         object : Handler() {
             override fun handleMessage(message: Message) {
-                val mainPrefs = MainPrefs.get(this@MainActivity)
                 if (isDay()) {
                     mainPrefs.brightnessDay?.let { setBrightness(it) }
                     mainPrefs.backgroundOpacityDay?.let { setBackgroundOpacity(it) }
@@ -368,7 +366,6 @@ class MainActivity : AppCompatActivity() {
         }
 
     private fun persistBrightness(value: Float) {
-        val mainPrefs = MainPrefs.get(this)
         if (isDay()) {
             mainPrefs.putBrightnessDay(value)
         } else {
@@ -377,7 +374,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun persistBackgroundOpacity(value: Float) {
-        val mainPrefs = MainPrefs.get(this)
         if (isDay()) {
             mainPrefs.putBackgroundOpacityDay(value)
         } else {
