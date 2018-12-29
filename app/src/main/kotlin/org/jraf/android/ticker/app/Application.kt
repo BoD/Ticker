@@ -24,6 +24,7 @@
  */
 package org.jraf.android.ticker.app
 
+import android.content.Context
 import androidx.emoji.bundled.BundledEmojiCompatConfig
 import androidx.emoji.text.EmojiCompat
 import androidx.multidex.MultiDexApplication
@@ -32,11 +33,15 @@ import org.jraf.android.util.log.Log
 
 class Application : MultiDexApplication() {
     companion object {
+        const val APP_NAME = "BoD Ticker"
         private const val TAG = "Ticker"
+        lateinit var APPLICATION_CONTEXT: Context
     }
 
     override fun onCreate() {
         super.onCreate()
+
+        APPLICATION_CONTEXT = this
 
         // Log
         Log.init(this, TAG, BuildConfig.DEBUG_LOGS)

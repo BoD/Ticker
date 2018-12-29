@@ -51,20 +51,15 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import org.jraf.android.ticker.BuildConfig
 import org.jraf.android.ticker.R
 import org.jraf.android.ticker.databinding.MainBinding
 import org.jraf.android.ticker.glide.GlideApp
 import org.jraf.android.ticker.pref.MainPrefs
+import org.jraf.android.ticker.ticker.Ticker
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
 import org.jraf.android.util.log.Log
-import org.jraf.libticker.httpconf.Configuration
-import org.jraf.libticker.httpconf.HttpConf
-import org.jraf.libticker.message.BasicMessageQueue
-import org.jraf.libticker.message.MessageQueue
-import org.jraf.libticker.plugin.manager.PluginManager
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -73,8 +68,6 @@ import kotlin.concurrent.thread
 class MainActivity : AppCompatActivity() {
 
     companion object {
-        private const val APP_NAME = "BoD Ticker"
-        private const val QUEUE_SIZE = 50
         private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
         private val CHECK_QUEUE_RATE_MS = TimeUnit.SECONDS.toMillis(14)
@@ -86,12 +79,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: MainBinding
-    private lateinit var messageQueue: MessageQueue
-    private lateinit var pluginManager: PluginManager
+
     private val toast: Toast by lazy {
         Toast.makeText(this, "", Toast.LENGTH_SHORT)
     }
     private var location: Location? = null
+
     private val mainPrefs by lazy {
         MainPrefs.get(this)
     }
@@ -120,29 +113,12 @@ class MainActivity : AppCompatActivity() {
         // Set the custom font
         binding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/$FONT_NAME")
 
-        messageQueue = BasicMessageQueue(QUEUE_SIZE)
-        pluginManager = PluginManager(messageQueue)
-
-        // Load plugin configuration (if any)
-        if (mainPrefs.containsPluginConfiguration()) {
-            pluginManager.managePlugins(mainPrefs.pluginConfiguration!!, false)
-        }
-
-        // Persist plugin configuration
-        pluginManager.managedPluginsChanged.subscribe { jsonString ->
-            mainPrefs.pluginConfiguration = jsonString
-        }
-
-        // Http conf
-        val httpConf = HttpConf(
-            pluginManager,
-            Configuration(
-                appName = APP_NAME,
-                appVersion = "${BuildConfig.VERSION_NAME}/${BuildConfig.VERSION_CODE}"
+        Ticker.messageQueue.addUrgent(
+            org.jraf.libticker.message.Message(
+                text = getString(R.string.main_httpConfUrl, Ticker.httpConf.getUrl()),
+                imageUri = "http://api.qrserver.com/v1/create-qr-code/?data=${Ticker.httpConf.getUrl()}"
             )
         )
-        httpConf.start()
-        setTickerText(getString(R.string.main_httpConfUrl, httpConf.getUrl()))
 
         binding.root.setOnTouchListener(mAdjustOnTouchListener)
     }
@@ -154,14 +130,14 @@ class MainActivity : AppCompatActivity() {
             Log.d("location=$location")
         }
 
-        pluginManager.startAllManagedPlugins()
+        Ticker.pluginManager.startAllManagedPlugins()
 
         updateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
         checkMessageQueueHandler.sendEmptyMessage(MESSAGE_CHECK_QUEUE)
     }
 
     override fun onPause() {
-        pluginManager.stopAllManagedPlugins()
+        Ticker.pluginManager.stopAllManagedPlugins()
         updateBrightnessAndBackgroundOpacityHandler.removeCallbacksAndMessages(null)
         checkMessageQueueHandler.removeCallbacksAndMessages(null)
         super.onPause()
@@ -280,7 +256,7 @@ class MainActivity : AppCompatActivity() {
             override fun handleMessage(message: Message) {
                 when (message.what) {
                     MESSAGE_CHECK_QUEUE -> {
-                        val newMessage = messageQueue.next
+                        val newMessage = Ticker.messageQueue.next
                         if (newMessage == null) {
                             // Check again later
                             sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
