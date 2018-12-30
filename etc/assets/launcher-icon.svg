@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="192" height="192"
+    viewBox="0 0 192 192" id="svg2" version="1.1" inkscape:version="0.91 r13725"
+    sodipodi:docname="launcher-icon.svg"
+    inkscape:export-filename="/Users/bod/gitrepo/ticker/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png"
+    inkscape:export-xdpi="90" inkscape:export-ydpi="90">
+    <defs id="defs4">
+        <linearGradient inkscape:collect="always" id="linearGradient4150">
+            <stop style="stop-color:#000032;stop-opacity:1" offset="0" id="stop4152" />
+            <stop style="stop-color:#000078;stop-opacity:1" offset="1" id="stop4154" />
+        </linearGradient>
+        <linearGradient inkscape:collect="always" xlink:href="#linearGradient4150"
+            id="linearGradient4156" x1="95.032158" y1="910.19983" x2="95.032158" y2="1006.0529"
+            gradientUnits="userSpaceOnUse" />
+        <filter inkscape:collect="always" style="color-interpolation-filters:sRGB" id="filter4246"
+            x="-0.041454545" width="1.0829091" y="-0.057" height="1.114">
+            <feGaussianBlur inkscape:collect="always" stdDeviation="3.04" id="feGaussianBlur4248" />
+        </filter>
+    </defs>
+    <sodipodi:namedview id="base" pagecolor="#ffffff" bordercolor="#666666" borderopacity="1.0"
+        inkscape:pageopacity="0.0" inkscape:pageshadow="2" inkscape:zoom="3.4010417"
+        inkscape:cx="96" inkscape:cy="96" inkscape:document-units="px"
+        inkscape:current-layer="layer1" showgrid="false" units="px" borderlayer="false"
+        inkscape:window-width="1440" inkscape:window-height="855" inkscape:window-x="0"
+        inkscape:window-y="1" inkscape:window-maximized="1" />
+    <metadata id="metadata7">
+        <rdf:RDF>
+            <cc:Work rdf:about="">
+                <dc:format>image/svg+xml</dc:format>
+                <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+                <dc:title></dc:title>
+            </cc:Work>
+        </rdf:RDF>
+    </metadata>
+    <g inkscape:label="Layer 1" inkscape:groupmode="layer" id="layer1"
+        transform="translate(0,-860.36216)">
+        <rect ry="14.995406" y="892.36218" x="8" height="128" width="176" id="rect4232"
+            style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;filter:url(#filter4246)" />
+        <flowRoot xml:space="preserve" id="flowRoot3336"
+            style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+            transform="translate(0,540.36216)"><flowRegion
+         id="flowRegion3338"><rect
+           id="rect3340"
+           width="425.75192"
+           height="443.00153"
+           x="43.124043"
+           y="35.283306" /></flowRegion>
+            <flowPara id="flowPara3342" /></flowRoot>
+        <rect
+            style="fill:url(#linearGradient4156);fill-opacity:1;stroke:none;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+            id="rect3354" width="176" height="128" x="8" y="892.36218" ry="14.995406" />
+        <flowRoot xml:space="preserve" id="flowRoot3344"
+            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;line-height:113.99999857%;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#ffff00;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+            transform="translate(-34.859619,841.75742)"><flowRegion
+         id="flowRegion3346"><rect
+           id="rect3348"
+           width="150"
+           height="112"
+           x="56"
+           y="56"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:25px;line-height:113.99999857%;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#ffff00;fill-opacity:1;" /></flowRegion>
+            <flowPara id="flowPara3350">The quick brown fox jumps over the lazy dog.</flowPara></flowRoot>
+    </g>
+</svg>
