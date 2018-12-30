@@ -62,9 +62,10 @@ android {
             buildConfigField 'String', 'BUILD_DATE', "\"${buildDate}\""
             buildConfigField 'boolean', 'CRASH_REPORT', 'true'
 
-            minifyEnabled true
+            // XXX Proguard is completely disabled for now as I can't find rules that work
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            shrinkResources true
+            shrinkResources false
             signingConfig signingConfigs.release
         }
     }
@@ -103,9 +104,11 @@ android.applicationVariants.all { variant ->
             copyApkToEtc.rename output.outputFileName, apkName
 
             // Copy the apk to the deploy folder
+            def deployFolder = "${buildProperties.deployFolder}/$globalProjectName"
+            mkdir deployFolder
             def copyApkToDeploy = tasks.create("copy${variant.name.capitalize()}ApkToDeploy", Copy)
             copyApkToDeploy.from(outputFile)
-            copyApkToDeploy.into(buildProperties.deployFolder)
+            copyApkToDeploy.into(deployFolder)
             copyApkToDeploy.rename output.outputFileName, apkName
 
             // Make the copy tasks run after the assemble tasks of the variant

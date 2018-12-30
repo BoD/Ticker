@@ -329,11 +329,11 @@ class MainActivity : AppCompatActivity() {
         object : Handler() {
             override fun handleMessage(message: Message) {
                 if (isDay()) {
-                    mainPrefs.brightnessDay?.let { setBrightness(it) }
-                    mainPrefs.backgroundOpacityDay?.let { setBackgroundOpacity(it) }
+                    setBrightness(mainPrefs.brightnessDay)
+                    setBackgroundOpacity(mainPrefs.backgroundOpacityDay)
                 } else {
-                    mainPrefs.brightnessNight?.let { setBrightness(it) }
-                    mainPrefs.backgroundOpacityNight?.let { setBackgroundOpacity(it) }
+                    setBrightness(mainPrefs.brightnessNight)
+                    setBackgroundOpacity(mainPrefs.backgroundOpacityNight)
                 }
 
                 // Reschedule
@@ -343,17 +343,17 @@ class MainActivity : AppCompatActivity() {
 
     private fun persistBrightness(value: Float) {
         if (isDay()) {
-            mainPrefs.putBrightnessDay(value)
+            mainPrefs.brightnessDay = value
         } else {
-            mainPrefs.putBrightnessNight(value)
+            mainPrefs.brightnessNight = value
         }
     }
 
     private fun persistBackgroundOpacity(value: Float) {
         if (isDay()) {
-            mainPrefs.putBackgroundOpacityDay(value)
+            mainPrefs.backgroundOpacityDay = value
         } else {
-            mainPrefs.putBackgroundOpacityNight(value)
+            mainPrefs.backgroundOpacityNight = value
         }
     }
 
