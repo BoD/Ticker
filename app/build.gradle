@@ -105,14 +105,13 @@ android.applicationVariants.all { variant ->
 
             // Copy the apk to the deploy folder
             def deployFolder = "${buildProperties.deployFolder}/$globalProjectName"
-            mkdir deployFolder
             def copyApkToDeploy = tasks.create("copy${variant.name.capitalize()}ApkToDeploy", Copy)
             copyApkToDeploy.from(outputFile)
             copyApkToDeploy.into(deployFolder)
             copyApkToDeploy.rename output.outputFileName, apkName
 
             // Make the copy tasks run after the assemble tasks of the variant
-            variant.assemble.finalizedBy(copyApkToEtc, copyApkToDeploy)
+            variant.assembleProvider.get().finalizedBy(copyApkToEtc, copyApkToDeploy)
         }
     }
 }
@@ -167,6 +166,11 @@ dependencies {
     implementation "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
 
     implementation "org.jtwig:jtwig-core:5.87.0.RELEASE"
+}
+
+// Run './gradlew countReleaseDexMethods' to see dex methods count
+dexcount {
+    runOnEachPackage = false
 }
 
 // Necessary for Prefs to work (see https://kotlinlang.org/docs/reference/kapt.html)
