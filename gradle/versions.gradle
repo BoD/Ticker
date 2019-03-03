@@ -4,10 +4,10 @@ def versions = [:]
 // Plugins
 def plugins = [:]
 plugins.with {
-    androidGradle = '3.4.0-alpha09'
-    gradleVersions = '0.20.0'
-    fabric = '1.27.0'
-    dexCount = '0.8.4'
+    androidGradle = '3.5.0-alpha06'
+    gradleVersions = '0.21.0'
+    fabric = '1.27.1'
+    dexCount = '0.8.6'
     gmsStrictVersionMatcher = '1.1.0'
 }
 versions.plugins = plugins
@@ -22,7 +22,7 @@ versions.libs = libs
 // Build parameters
 def build = [:]
 build.with {
-    gradle = '5.1-rc-3'
+    gradle = '5.2.1'
     compileSdk = 28
     targetSdk = 28
     minSdk = 14
@@ -39,21 +39,21 @@ versions.testing = testing
 
 // Other dependencies
 versions.with {
-    kotlin = '1.3.11'
-    androidXAppcompat = '1.1.0-alpha01'
+    kotlin = '1.3.21'
+    androidXAppcompat = '1.1.0-alpha02'
     androidXEmoji = '1.0.0'
     androidXMultidex = '2.0.1'
-    material = '1.1.0-alpha02'
+    material = '1.1.0-alpha04'
     constraintLayout = '1.1.0'
-    rxJava = '2.2.4'
+    rxJava = '2.2.7'
     rxKotlin = '2.3.0'
-    crashlytics = '2.9.8'
+    crashlytics = '2.9.9'
     prefs = '1.4.0'
-    libticker = '1.2.0'
+    libticker = '1.3.0'
     multidex = '1.0.3'
-    slf4j = '1.7.25'
-    klaxon = '5.0.1'
-    glide = '4.8.0'
+    slf4j = '1.7.26'
+    klaxon = '5.0.5'
+    glide = '4.9.0'
     sunriseSunset = '1.1.1'
 }
 

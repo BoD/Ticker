@@ -7,7 +7,7 @@
  *                              /___/
  * repository.
  *
- * Copyright (C) 2016 Benoit 'BoD' Lubek (BoD@JRAF.org)
+ * Copyright (C) 2016-present Benoit 'BoD' Lubek (BoD@JRAF.org)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,6 +64,8 @@ import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
+typealias TickerMessage = org.jraf.libticker.message.Message
+
 @SuppressLint("ShowToast")
 class MainActivity : AppCompatActivity() {
 
@@ -83,6 +85,7 @@ class MainActivity : AppCompatActivity() {
     private val toast: Toast by lazy {
         Toast.makeText(this, "", Toast.LENGTH_SHORT)
     }
+
     private var location: Location? = null
 
     private val mainPrefs by lazy {
@@ -114,13 +117,13 @@ class MainActivity : AppCompatActivity() {
         binding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/$FONT_NAME")
 
         Ticker.messageQueue.addUrgent(
-            org.jraf.libticker.message.Message(
+            TickerMessage(
                 text = getString(R.string.main_httpConfUrl, Ticker.httpConf.getUrl()),
                 imageUri = "http://api.qrserver.com/v1/create-qr-code/?data=${Ticker.httpConf.getUrl()}"
             )
         )
 
-        binding.root.setOnTouchListener(mAdjustOnTouchListener)
+        binding.root.setOnTouchListener(adjustBrightnessAndBackgroundOpacityOnTouchListener)
     }
 
     override fun onResume() {
@@ -175,9 +178,22 @@ class MainActivity : AppCompatActivity() {
         binding.txtTicker.text = null
     }
 
+    private fun showMessageText(message: TickerMessage) {
+        val html = message.html
+        if (html != null) {
+            setTickerHtml(html)
+        } else {
+            setTickerText(message.textFormatted)
+        }
+    }
+
     private fun setTickerText(text: String) {
         if (binding.imgImage.alpha > 0F) {
             binding.imgImage.animate().alpha(0F)
+        }
+
+        if (binding.webTicker.alpha > 0F) {
+            binding.webTicker.animate().alpha(0F)
         }
 
         @Suppress("DEPRECATION")
@@ -212,39 +228,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    //--------------------------------------------------------------------------
-    // region Brightness and background opacity.
-    //--------------------------------------------------------------------------
-
-    private val mAdjustOnTouchListener = View.OnTouchListener { v, event ->
-        val y = event.y
-        val height = v.height
-        val x = event.x
-        val width = v.width
-
-        val value = Math.max(0f, 1f - y / height)
-
-        val left = x < width / 2
-        if (left) {
-            // Brightness
-            toast(value, R.string.main_brightness_toast)
-            setBrightness(value)
-        } else {
-            // Background opacity
-            toast(value, R.string.main_backgroundOpacity_toast)
-            setBackgroundOpacity(value)
+    private fun setTickerHtml(html: String) {
+        if (binding.imgImage.alpha > 0F) {
+            binding.imgImage.animate().alpha(0F)
         }
 
-        if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
-            if (left) {
-                persistBrightness(value)
-            } else {
-                persistBackgroundOpacity(value)
-            }
-        }
+        binding.webTicker.animate().alpha(01F)
+        binding.txtTicker.text = null
 
-        true
+        binding.webTicker.loadData(html, "text/html", "utf-8")
     }
 
     /**
@@ -267,12 +259,12 @@ class MainActivity : AppCompatActivity() {
                             // There is an image: show it now, and show the text later
                             showImage(newMessage.imageUri!!)
                             sendMessageDelayed(
-                                Message.obtain(this, MESSAGE_SHOW_TEXT, newMessage.textFormatted),
+                                Message.obtain(this, MESSAGE_SHOW_TEXT, newMessage),
                                 SHOW_IMAGE_DURATION_MS
                             )
                         } else {
                             // Just the text: show it now
-                            setTickerText(newMessage.textFormatted)
+                            showMessageText(newMessage)
 
                             // Reschedule
                             sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
@@ -280,7 +272,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     MESSAGE_SHOW_TEXT -> {
-                        setTickerText(message.obj as String)
+                        showMessageText(message.obj as TickerMessage)
 
                         // Reschedule
                         sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
@@ -313,6 +305,9 @@ class MainActivity : AppCompatActivity() {
                     isFirstResource: Boolean
                 ): Boolean {
                     binding.txtTicker.text = null
+                    if (binding.webTicker.alpha > 0F) {
+                        binding.webTicker.animate().alpha(0F)
+                    }
                     binding.imgImage.alpha = 1F
                     binding.imgImage.setImageDrawable(null)
                     return false
@@ -320,6 +315,42 @@ class MainActivity : AppCompatActivity() {
             })
             .into(binding.imgImage)
     }
+
+
+    //--------------------------------------------------------------------------
+    // region Brightness and background opacity.
+    //--------------------------------------------------------------------------
+
+    private val adjustBrightnessAndBackgroundOpacityOnTouchListener =
+        View.OnTouchListener { v, event ->
+            val y = event.y
+            val height = v.height
+            val x = event.x
+            val width = v.width
+
+            val value = Math.max(0f, 1f - y / height)
+
+            val left = x < width / 2
+            if (left) {
+                // Brightness
+                toast(value, R.string.main_brightness_toast)
+                setBrightness(value)
+            } else {
+                // Background opacity
+                toast(value, R.string.main_backgroundOpacity_toast)
+                setBackgroundOpacity(value)
+            }
+
+            if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
+                if (left) {
+                    persistBrightness(value)
+                } else {
+                    persistBackgroundOpacity(value)
+                }
+            }
+
+            true
+        }
 
     /**
      * Handler to update the brightness / background opacity periodically.
@@ -397,6 +428,8 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    // endregion
+
 
     private fun toast(ratio: Float, textRes: Int) {
         val text = getString(textRes, (ratio * 100).toInt())
@@ -406,6 +439,4 @@ class MainActivity : AppCompatActivity() {
             show()
         }
     }
-
-    // endregion
 }

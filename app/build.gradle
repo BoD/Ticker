@@ -164,8 +164,6 @@ dependencies {
 
     // Sunrise/sunset
     implementation "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
-
-    implementation "org.jtwig:jtwig-core:5.87.0.RELEASE"
 }
 
 // Run './gradlew countReleaseDexMethods' to see dex methods count
