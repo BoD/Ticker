@@ -104,7 +104,7 @@ android.applicationVariants.all { variant ->
             copyApkToEtc.rename output.outputFileName, apkName
 
             // Copy the apk to the deploy folder
-            def deployFolder = "${buildProperties.deployFolder}/$globalProjectName"
+            def deployFolder = "${buildProperties.deployFolder}/$globalProjectName/$buildNumber"
             def copyApkToDeploy = tasks.create("copy${variant.name.capitalize()}ApkToDeploy", Copy)
             copyApkToDeploy.from(outputFile)
             copyApkToDeploy.into(deployFolder)

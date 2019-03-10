@@ -230,7 +230,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setTickerHtml(html: String) {
-        Log.d(html)
         if (binding.imgImage.alpha > 0F) {
             binding.imgImage.animate().alpha(0F)
         }

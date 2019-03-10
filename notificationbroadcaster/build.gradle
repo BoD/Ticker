@@ -85,13 +85,14 @@ android.applicationVariants.all { variant ->
             copyApkToEtc.rename output.outputFileName, apkName
 
             // Copy the apk to the deploy folder
+            def deployFolder = "${buildProperties.deployFolder}/$globalProjectName/$buildNumber"
             def copyApkToDeploy = tasks.create("copy${variant.name.capitalize()}ApkToDeploy", Copy)
             copyApkToDeploy.from(outputFile)
-            copyApkToDeploy.into(buildProperties.deployFolder)
+            copyApkToDeploy.into(deployFolder)
             copyApkToDeploy.rename output.outputFileName, apkName
 
             // Make the copy tasks run after the assemble tasks of the variant
-            variant.assemble.finalizedBy(copyApkToEtc, copyApkToDeploy)
+            variant.assembleProvider.get().finalizedBy(copyApkToEtc, copyApkToDeploy)
         }
     }
 }
