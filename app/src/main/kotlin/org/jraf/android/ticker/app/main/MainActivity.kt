@@ -38,6 +38,7 @@ import android.text.Html
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.util.Base64
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -229,14 +230,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setTickerHtml(html: String) {
+        Log.d(html)
         if (binding.imgImage.alpha > 0F) {
             binding.imgImage.animate().alpha(0F)
         }
 
-        binding.webTicker.animate().alpha(01F)
+        binding.webTicker.animate().alpha(1F)
         binding.txtTicker.text = null
 
-        binding.webTicker.loadData(html, "text/html", "utf-8")
+        binding.webTicker.loadData(
+            Base64.encodeToString(html.toByteArray(), Base64.NO_PADDING),
+            "text/html; charset=utf-8",
+            "base64"
+        )
     }
 
     /**
