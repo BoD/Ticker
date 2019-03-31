@@ -253,7 +253,7 @@ class MainActivity : AppCompatActivity() {
             override fun handleMessage(message: Message) {
                 when (message.what) {
                     MESSAGE_CHECK_QUEUE -> {
-                        val newMessage = Ticker.messageQueue.next
+                        val newMessage = Ticker.messageQueue.getNext()
                         if (newMessage == null) {
                             // Check again later
                             sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
