@@ -117,7 +117,9 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        binding.root.setOnTouchListener(adjustBrightnessAndBackgroundOpacityOnTouchListener)
+        binding.foregroundOpacity.setOnTouchListener(
+            adjustBrightnessAndBackgroundOpacityOnTouchListener
+        )
     }
 
     override fun onResume() {

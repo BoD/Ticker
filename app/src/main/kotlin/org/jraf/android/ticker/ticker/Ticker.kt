@@ -34,7 +34,7 @@ import org.jraf.libticker.message.MessageQueue
 import org.jraf.libticker.plugin.manager.PluginManager
 
 object Ticker {
-    private const val QUEUE_SIZE = 100
+    private const val QUEUE_SIZE = 200
 
     private val mainPrefs by lazy {
         MainPrefs(Application.APPLICATION_CONTEXT)
