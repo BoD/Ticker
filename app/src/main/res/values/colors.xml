@@ -5,4 +5,8 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="windowBackground">#000</color>
+
+    <color name="infoPanelBackground">#1FF0</color>
+    <color name="infoPanelSelected">#FFF</color>
+    <color name="infoPanelDefault">#BFFF</color>
 </resources>

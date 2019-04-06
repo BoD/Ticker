@@ -30,7 +30,6 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.location.Location
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
@@ -43,8 +42,8 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import ca.rmen.sunrisesunset.SunriseSunset
 import com.bumptech.glide.load.DataSource
@@ -83,26 +82,20 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: MainBinding
 
-    private val toast: Toast by lazy {
-        Toast.makeText(this, "", Toast.LENGTH_SHORT)
-    }
-
     private var location: Location? = null
 
     private val mainPrefs by lazy {
-        MainPrefs.get(this)
+        MainPrefs(this)
     }
 
     @SuppressLint("InlinedApi", "CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            window.setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )
-        }
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
 
         binding = DataBindingUtil.setContentView(this, R.layout.main)
 
@@ -120,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         Ticker.messageQueue.addUrgent(
             TickerMessage(
                 text = getString(R.string.main_httpConfUrl, Ticker.httpConf.getUrl()),
-                imageUri = "http://api.qrserver.com/v1/create-qr-code/?data=${Ticker.httpConf.getUrl()}"
+                imageUri = "https://api.qrserver.com/v1/create-qr-code/?data=${Ticker.httpConf.getUrl()}"
             )
         )
 
@@ -328,34 +321,106 @@ class MainActivity : AppCompatActivity() {
 
     private val adjustBrightnessAndBackgroundOpacityOnTouchListener =
         View.OnTouchListener { v, event ->
-            val y = event.y
-            val height = v.height
+            var y = event.y
+            val height = v.height.toFloat()
+            val safeZone = 1.8F
+            y = y * safeZone - (height * safeZone - height) / 2F
             val x = event.x
             val width = v.width
 
-            val value = Math.max(0f, 1f - y / height)
+            val ratio = (1F - y / height).coerceIn(0F..1F)
 
             val left = x < width / 2
             if (left) {
                 // Brightness
-                toast(value, R.string.main_brightness_toast)
-                setBrightness(value)
+                showBrightnessPanel(ratio)
+                setBrightness(ratio)
             } else {
                 // Background opacity
-                toast(value, R.string.main_backgroundOpacity_toast)
-                setBackgroundOpacity(value)
+                showBackgroundOpacityPanel(ratio)
+                setBackgroundOpacity(ratio)
             }
 
             if (event.action == MotionEvent.ACTION_UP || event.action == MotionEvent.ACTION_CANCEL) {
                 if (left) {
-                    persistBrightness(value)
+                    persistBrightness(ratio)
                 } else {
-                    persistBackgroundOpacity(value)
+                    persistBackgroundOpacity(ratio)
                 }
+                binding.txtBrightness.visibility = View.GONE
+                binding.txtBackgroundOpacity.visibility = View.GONE
             }
 
             true
         }
+
+    private fun showBrightnessPanel(ratio: Float) {
+        with(binding.txtBrightness) {
+            visibility = View.VISIBLE
+            setBackgroundColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.infoPanelBackground
+                )
+            )
+            setTextColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.infoPanelSelected
+                )
+            )
+            text = getString(R.string.main_brightness, (ratio * 100).toInt())
+        }
+
+        with(binding.txtBackgroundOpacity) {
+            visibility = View.VISIBLE
+            setBackgroundColor(0)
+            setTextColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.infoPanelDefault
+                )
+            )
+            text = getString(
+                R.string.main_backgroundOpacity,
+                ((if (isDay()) mainPrefs.backgroundOpacityDay else mainPrefs.backgroundOpacityNight) * 100).toInt()
+            )
+        }
+    }
+
+    private fun showBackgroundOpacityPanel(ratio: Float) {
+        with(binding.txtBackgroundOpacity) {
+            visibility = View.VISIBLE
+            setBackgroundColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.infoPanelBackground
+                )
+            )
+            setTextColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.infoPanelSelected
+                )
+            )
+            text = getString(R.string.main_backgroundOpacity, (ratio * 100).toInt())
+        }
+
+        with(binding.txtBrightness) {
+            visibility = View.VISIBLE
+            setBackgroundColor(0)
+            setTextColor(
+                ContextCompat.getColor(
+                    this@MainActivity,
+                    R.color.infoPanelDefault
+                )
+            )
+            text = getString(
+                R.string.main_brightness,
+                ((if (isDay()) mainPrefs.brightnessDay else mainPrefs.brightnessNight) * 100).toInt()
+            )
+        }
+    }
 
     /**
      * Handler to update the brightness / background opacity periodically.
@@ -398,7 +463,7 @@ class MainActivity : AppCompatActivity() {
         return if (location == null) {
             val now = Calendar.getInstance()
             val hour = now.get(Calendar.HOUR_OF_DAY)
-            hour in 8..10
+            hour in 8..22
         } else {
             SunriseSunset.isDay(location.latitude, location.longitude)
         }
@@ -433,15 +498,5 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    // endregion
-
-
-    private fun toast(ratio: Float, textRes: Int) {
-        val text = getString(textRes, (ratio * 100).toInt())
-        with(toast) {
-            setText(text)
-            duration = Toast.LENGTH_SHORT
-            show()
-        }
-    }
+// endregion
 }

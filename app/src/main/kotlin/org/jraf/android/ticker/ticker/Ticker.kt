@@ -37,14 +37,14 @@ object Ticker {
     private const val QUEUE_SIZE = 100
 
     private val mainPrefs by lazy {
-        MainPrefs.get(Application.APPLICATION_CONTEXT)
+        MainPrefs(Application.APPLICATION_CONTEXT)
     }
 
     val messageQueue: MessageQueue = BasicMessageQueue(QUEUE_SIZE)
     val pluginManager: PluginManager = PluginManager(messageQueue).apply {
         // Load plugin configuration (if any)
-        if (mainPrefs.containsPluginConfiguration()) {
-            managePlugins(mainPrefs.pluginConfiguration!!, false)
+        mainPrefs.pluginConfiguration?.let {
+            managePlugins(it, false)
         }
 
         // Persist plugin configuration

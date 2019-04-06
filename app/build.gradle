@@ -135,6 +135,7 @@ dependencies {
     implementation "com.google.android.material:material:$versions.material"
     implementation "androidx.emoji:emoji-bundled:$versions.androidXEmoji"
     implementation "androidx.multidex:multidex:$versions.androidXMultidex"
+    implementation "androidx.constraintlayout:constraintlayout:$versions.androidXConstraintLayout"
 
     // Fabric / Crashlytics
     implementation("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") {
@@ -142,8 +143,7 @@ dependencies {
     }
 
     // JRAF
-    kapt "org.jraf:prefs-compiler:$versions.prefs"
-    implementation "org.jraf:prefs:$versions.prefs"
+    implementation "org.jraf:kprefs:$versions.kprefs"
     implementation 'com.github.BoD:jraf-android-util:-SNAPSHOT'
 //    implementation 'org.jraf:jraf-android-util:1.0.0'
 
@@ -169,9 +169,4 @@ dependencies {
 // Run './gradlew countReleaseDexMethods' to see dex methods count
 dexcount {
     runOnEachPackage = false
-}
-
-// Necessary for Prefs to work (see https://kotlinlang.org/docs/reference/kapt.html)
-kapt {
-    correctErrorTypes = true
 }

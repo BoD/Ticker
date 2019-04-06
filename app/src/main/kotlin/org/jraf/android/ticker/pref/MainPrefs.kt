@@ -24,22 +24,15 @@
  */
 package org.jraf.android.ticker.pref
 
-import org.jraf.android.prefs.DefaultFloat
-import org.jraf.android.prefs.Prefs
+import android.content.Context
+import org.jraf.android.kprefs.Prefs
 
-@Prefs(useAndroidX = true)
-class Main {
-    @DefaultFloat(.5F)
-    var brightnessDay: java.lang.Float = java.lang.Float(0F)
+class MainPrefs(context: Context) {
+    private val prefs = Prefs(context)
 
-    @DefaultFloat(.5F)
-    var brightnessNight: java.lang.Float = java.lang.Float(0F)
-
-    @DefaultFloat(.5F)
-    var backgroundOpacityDay: java.lang.Float = java.lang.Float(0F)
-
-    @DefaultFloat(.5F)
-    var backgroundOpacityNight: java.lang.Float = java.lang.Float(0F)
-
-    var pluginConfiguration: String? = null
+    var brightnessDay by prefs.Float(.8F)
+    var brightnessNight by prefs.Float(.7F)
+    var backgroundOpacityDay by prefs.Float(.25F)
+    var backgroundOpacityNight by prefs.Float(0F)
+    var pluginConfiguration by prefs.String()
 }

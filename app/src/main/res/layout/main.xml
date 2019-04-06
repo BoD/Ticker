@@ -1,8 +1,9 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".app.main.MainActivity">
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="false"
@@ -20,6 +21,7 @@
             android:layout_height="match_parent"
             android:breakStrategy="high_quality"
             android:gravity="center"
+            tools:textColor="#FFF"
             android:includeFontPadding="false"
             android:lineSpacingMultiplier=".9"
             android:text="@string/main_fetching"
@@ -27,22 +29,57 @@
             tools:targetApi="m" />
 
         <ImageView
+            tools:visibility="invisible"
             android:id="@+id/imgImage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitCenter" />
 
         <WebView
+            tools:visibility="invisible"
             android:id="@+id/webTicker"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0" />
 
         <View
+            tools:visibility="invisible"
             android:id="@+id/foregroundOpacity"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#000" />
 
-    </FrameLayout>
+        <!-- Brightness -->
+        <TextView
+            android:id="@+id/txtBrightness"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:shadowColor="#000"
+            android:shadowRadius="16"
+            android:textColor="#FFF"
+            android:textSize="28sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent=".5"
+            tools:text="Brightness:\n25%" />
+
+        <!-- Background opacity -->
+        <TextView
+            android:id="@+id/txtBackgroundOpacity"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:shadowColor="#000"
+            android:shadowRadius="16"
+            android:textColor="#FFF"
+            android:textSize="28sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent=".5"
+            tools:text="Background:\n25%" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
