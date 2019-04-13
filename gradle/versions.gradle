@@ -48,7 +48,7 @@ versions.with {
     rxJava = '2.2.8'
     rxKotlin = '2.3.0'
     crashlytics = '2.9.9'
-    kprefs = '1.0.0'
+    kprefs = '1.1.0'
     libticker = '1.4.0'
     multidex = '1.0.3'
     slf4j = '1.7.26'
