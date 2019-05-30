@@ -42,6 +42,8 @@ import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -59,6 +61,8 @@ import org.jraf.android.ticker.ticker.Ticker
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
+import org.jraf.android.ticker.util.ui.fadeIn
+import org.jraf.android.ticker.util.ui.fadeOut
 import org.jraf.android.util.log.Log
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -74,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
         private val CHECK_QUEUE_RATE_MS = TimeUnit.SECONDS.toMillis(14)
         private val SHOW_IMAGE_DURATION_MS = TimeUnit.SECONDS.toMillis(8)
-        private const val TYPEWRITER_EFFECT_DELAY_MS = 33L
+        private const val TYPEWRITER_EFFECT_DURATION_MS = 1800L
 
         private const val MESSAGE_CHECK_QUEUE = 0
         private const val MESSAGE_SHOW_TEXT = 1
@@ -120,6 +124,14 @@ class MainActivity : AppCompatActivity() {
         binding.foregroundOpacity.setOnTouchListener(
             adjustBrightnessAndBackgroundOpacityOnTouchListener
         )
+
+        binding.webTicker.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                binding.imgImage.fadeOut()
+                binding.webTicker.fadeIn()
+                binding.txtTicker.fadeOut()
+            }
+        }
     }
 
     override fun onResume() {
@@ -184,13 +196,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setTickerText(text: String) {
-        if (binding.imgImage.alpha > 0F) {
-            binding.imgImage.animate().alpha(0F)
-        }
-
-        if (binding.webTicker.alpha > 0F) {
-            binding.webTicker.animate().alpha(0F)
-        }
+        binding.imgImage.fadeOut()
+        binding.webTicker.fadeOut()
+        binding.txtTicker.fadeIn()
 
         @Suppress("DEPRECATION")
         val formattedText = Html.fromHtml(text)
@@ -210,6 +218,8 @@ class MainActivity : AppCompatActivity() {
         val color = Color.HSVToColor(hsv)
         binding.txtTicker.setTextColor(color)
 
+        val delay =
+            if (textWithSpans.length <= 10) 0 else TYPEWRITER_EFFECT_DURATION_MS / textWithSpans.length
         for (i in 0 until textWithSpans.length) {
             binding.txtTicker.postDelayed({
                 val truncatedText = SpannableStringBuilder(textWithSpans)
@@ -220,18 +230,11 @@ class MainActivity : AppCompatActivity() {
                     Spannable.SPAN_INCLUSIVE_INCLUSIVE
                 )
                 binding.txtTicker.text = truncatedText
-            }, TYPEWRITER_EFFECT_DELAY_MS * i)
+            }, delay * i)
         }
     }
 
     private fun setTickerHtml(html: String) {
-        if (binding.imgImage.alpha > 0F) {
-            binding.imgImage.animate().alpha(0F)
-        }
-
-        binding.webTicker.animate().alpha(1F)
-        binding.txtTicker.text = null
-
         binding.webTicker.loadData(
             Base64.encodeToString(html.toByteArray(), Base64.NO_PADDING),
             "text/html; charset=utf-8",
@@ -304,10 +307,9 @@ class MainActivity : AppCompatActivity() {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    binding.txtTicker.text = null
-                    if (binding.webTicker.alpha > 0F) {
-                        binding.webTicker.animate().alpha(0F)
-                    }
+                    binding.txtTicker.fadeOut()
+                    binding.webTicker.fadeOut()
+                    binding.imgImage.visibility = View.VISIBLE
                     binding.imgImage.alpha = 1F
                     binding.imgImage.setImageDrawable(null)
                     return false
