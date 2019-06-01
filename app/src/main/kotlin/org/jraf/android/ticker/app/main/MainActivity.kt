@@ -34,6 +34,7 @@ import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Message
 import android.text.Html
 import android.text.Spannable
@@ -41,6 +42,7 @@ import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.util.Base64
 import android.util.Rational
+import android.util.Size
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -50,8 +52,9 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraX
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysisConfig
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureConfig
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.postDelayed
@@ -67,6 +70,7 @@ import org.jraf.android.ticker.databinding.MainBinding
 import org.jraf.android.ticker.glide.GlideApp
 import org.jraf.android.ticker.pref.MainPrefs
 import org.jraf.android.ticker.ticker.Ticker
+import org.jraf.android.ticker.util.camera.LuminosityAnalyzer
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithImageSpans
 import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
@@ -204,20 +208,38 @@ class MainActivity : AppCompatActivity() {
     private fun onAllPermissionsGranted() {
         initCamera()
         HandlerUtil.getMainHandler().postDelayed(2000) {
-            captureImage()
+            //            captureImage()
         }
     }
 
     // endregion
 
     private fun initCamera() {
-        val imageCaptureConfig = ImageCaptureConfig.Builder()
-            .apply {
-                setTargetAspectRatio(Rational(1, 1))
-                setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
-            }.build()
-        imageCapture = ImageCapture(imageCaptureConfig)
-        CameraX.bindToLifecycle(this, imageCapture)
+//        val imageCaptureConfig = ImageCaptureConfig.Builder()
+//            .apply {
+//                setTargetAspectRatio(Rational(1, 1))
+//                setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
+//            }.build()
+//        imageCapture = ImageCapture(imageCaptureConfig)
+
+
+        val analyzerConfig = ImageAnalysisConfig.Builder().apply {
+            // Use a worker thread for image analysis to prevent glitches
+            val analyzerThread = HandlerThread("CameraLuminosityAnalysis").apply {
+                start()
+            }
+            setLensFacing(CameraX.LensFacing.FRONT)
+            setTargetAspectRatio(Rational(1, 1))
+            setTargetResolution(Size(640, 480))
+            setCallbackHandler(Handler(analyzerThread.looper))
+            setImageReaderMode(ImageAnalysis.ImageReaderMode.ACQUIRE_LATEST_IMAGE)
+        }.build()
+
+        val analyzerUseCase = ImageAnalysis(analyzerConfig).apply {
+            analyzer = LuminosityAnalyzer()
+        }
+
+        CameraX.bindToLifecycle(this, /*imageCapture,*/ analyzerUseCase)
     }
 
     private fun captureImage() {
