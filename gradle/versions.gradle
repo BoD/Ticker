@@ -25,7 +25,7 @@ build.with {
     gradle = '5.4.1'
     compileSdk = 28
     targetSdk = 28
-    minSdk = 19
+    minSdk = 21
 }
 versions.build = build
 
@@ -55,6 +55,7 @@ versions.with {
     klaxon = '5.0.5'
     glide = '4.9.0'
     sunriseSunset = '1.1.1'
+    cameraX = '1.0.0-alpha01'
 }
 
 ext.versions = versions

@@ -24,7 +24,9 @@
  */
 package org.jraf.android.ticker.app.main
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
@@ -44,7 +46,9 @@ import android.view.View
 import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import ca.rmen.sunrisesunset.SunriseSunset
@@ -82,6 +86,9 @@ class MainActivity : AppCompatActivity() {
 
         private const val MESSAGE_CHECK_QUEUE = 0
         private const val MESSAGE_SHOW_TEXT = 1
+
+        private const val REQUEST_PERMISSIONS = 0
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
     }
 
     private lateinit var binding: MainBinding
@@ -132,6 +139,13 @@ class MainActivity : AppCompatActivity() {
                 binding.txtTicker.fadeOut()
             }
         }
+
+        // Permissions
+        if (allPermissionsGranted()) {
+            onAllPermissionsGranted()
+        } else {
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_PERMISSIONS)
+        }
     }
 
     override fun onResume() {
@@ -153,6 +167,38 @@ class MainActivity : AppCompatActivity() {
         checkMessageQueueHandler.removeCallbacksAndMessages(null)
         super.onPause()
     }
+
+    //--------------------------------------------------------------------------
+    // region Permissions.
+    //--------------------------------------------------------------------------
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == REQUEST_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                onAllPermissionsGranted()
+            } else {
+                Toast.makeText(
+                    this,
+                    getString(R.string.main_permissionNotGranted),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun onAllPermissionsGranted() {
+
+    }
+
+    // endregion
 
     private fun adjustFontSize(tickerText: CharSequence) {
         val rect = Rect()
@@ -275,6 +321,11 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     MESSAGE_SHOW_TEXT -> {
+                        // Clear any pending image loading (on slow networks, they may be
+                        // still ongoing when we show a text)
+                        GlideApp.with(this@MainActivity).clear(binding.imgImage)
+
+                        // Show the text
                         showMessageText(message.obj as TickerMessage)
 
                         // Reschedule

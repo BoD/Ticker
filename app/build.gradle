@@ -164,6 +164,10 @@ dependencies {
 
     // Sunrise/sunset
     implementation "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
+
+    // CameraX
+    implementation "androidx.camera:camera-core:$versions.cameraX"
+    implementation "androidx.camera:camera-camera2:$versions.cameraX"
 }
 
 // Run './gradlew countReleaseDexMethods' to see dex methods count
