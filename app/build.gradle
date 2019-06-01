@@ -136,6 +136,7 @@ dependencies {
     implementation "androidx.emoji:emoji-bundled:$versions.androidXEmoji"
     implementation "androidx.multidex:multidex:$versions.androidXMultidex"
     implementation "androidx.constraintlayout:constraintlayout:$versions.androidXConstraintLayout"
+    implementation "androidx.core:core-ktx:$versions.androidXCore"
 
     // Fabric / Crashlytics
     implementation("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") {

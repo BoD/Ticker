@@ -40,6 +40,7 @@ versions.testing = testing
 // Other dependencies
 versions.with {
     kotlin = '1.3.31'
+    androidXCore = '1.0.1'
     androidXAppcompat = '1.1.0-alpha05'
     androidXEmoji = '1.0.0'
     androidXMultidex = '2.0.1'

@@ -40,6 +40,7 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.util.Base64
+import android.util.Rational
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -48,8 +49,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraX
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureConfig
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.os.postDelayed
 import androidx.databinding.DataBindingUtil
 import ca.rmen.sunrisesunset.SunriseSunset
 import com.bumptech.glide.load.DataSource
@@ -67,7 +72,9 @@ import org.jraf.android.ticker.util.emoji.EmojiUtil.replaceEmojisWithSmiley
 import org.jraf.android.ticker.util.location.IpApiClient
 import org.jraf.android.ticker.util.ui.fadeIn
 import org.jraf.android.ticker.util.ui.fadeOut
+import org.jraf.android.util.handler.HandlerUtil
 import org.jraf.android.util.log.Log
+import java.io.File
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
@@ -92,8 +99,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: MainBinding
-
     private var location: Location? = null
+    private lateinit var imageCapture: ImageCapture
 
     private val mainPrefs by lazy {
         MainPrefs(this)
@@ -195,10 +202,44 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onAllPermissionsGranted() {
-
+        initCamera()
+        HandlerUtil.getMainHandler().postDelayed(2000) {
+            captureImage()
+        }
     }
 
     // endregion
+
+    private fun initCamera() {
+        val imageCaptureConfig = ImageCaptureConfig.Builder()
+            .apply {
+                setTargetAspectRatio(Rational(1, 1))
+                setCaptureMode(ImageCapture.CaptureMode.MIN_LATENCY)
+            }.build()
+        imageCapture = ImageCapture(imageCaptureConfig)
+        CameraX.bindToLifecycle(this, imageCapture)
+    }
+
+    private fun captureImage() {
+        val file = File(externalMediaDirs.first(), "${System.currentTimeMillis()}.jpg")
+        imageCapture.takePicture(file, object : ImageCapture.OnImageSavedListener {
+            override fun onError(
+                error: ImageCapture.UseCaseError,
+                message: String,
+                cause: Throwable?
+            ) {
+                val msg = "Image capture failed: $message"
+                Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
+                Log.e(cause, msg)
+            }
+
+            override fun onImageSaved(file: File) {
+                val msg = "Image capture succeeded: ${file.absolutePath}"
+                Toast.makeText(this@MainActivity, msg, Toast.LENGTH_SHORT).show()
+                Log.d(msg)
+            }
+        })
+    }
 
     private fun adjustFontSize(tickerText: CharSequence) {
         val rect = Rect()
