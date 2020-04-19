@@ -27,8 +27,8 @@ package org.jraf.android.ticker.ticker
 import org.jraf.android.ticker.BuildConfig
 import org.jraf.android.ticker.app.Application
 import org.jraf.android.ticker.pref.MainPrefs
-import org.jraf.libticker.httpconf.Configuration
 import org.jraf.libticker.httpconf.HttpConf
+import org.jraf.libticker.httpconf.HttpConfSettings
 import org.jraf.libticker.message.BasicMessageQueue
 import org.jraf.libticker.message.MessageQueue
 import org.jraf.libticker.plugin.manager.PluginManager
@@ -56,7 +56,7 @@ object Ticker {
     // Http conf
     val httpConf = HttpConf(
         pluginManager,
-        Configuration(
+        HttpConfSettings(
             appName = Application.APP_NAME,
             appVersion = "${BuildConfig.VERSION_NAME}/${BuildConfig.VERSION_CODE}"
         )

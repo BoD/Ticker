@@ -26,13 +26,6 @@ android {
         // Useful for api keys in the manifest (Maps, Crashlytics, ...)
         manifestPlaceholders = buildProperties
 
-        // More api keys
-        resValue 'string', 'apiKeyTwitterOauthConsumerKey', buildProperties.apiKeyTwitterOauthConsumerKey
-        resValue 'string', 'apiKeyTwitterOauthConsumerSecret', buildProperties.apiKeyTwitterOauthConsumerSecret
-        resValue 'string', 'apiKeyTwitterOauthAccessToken', buildProperties.apiKeyTwitterOauthAccessToken
-        resValue 'string', 'apiKeyTwitterOauthAccessTokenSecret', buildProperties.apiKeyTwitterOauthAccessTokenSecret
-        resValue 'string', 'apiKeyForecastIo', buildProperties.apiKeyForecastIo
-
         // Setting this to false enables the png generation at buildtime
         // (see http://android-developers.blogspot.fr/2016/02/android-support-library-232.html)
         vectorDrawables.useSupportLibrary = false
@@ -88,6 +81,7 @@ android {
         pickFirst "META-INF/io.netty.versions.properties"
         pickFirst "META-INF/INDEX.LIST"
         pickFirst 'META-INF/kotlinx-html.kotlin_module'
+        pickFirst 'META-INF/DEPENDENCIES'
     }
 }
 
@@ -149,9 +143,13 @@ dependencies {
 //    implementation 'org.jraf:jraf-android-util:1.0.0'
 
     // Libticker
-    implementation("org.jraf:libticker-core:$versions.libticker")
-    implementation("org.jraf:libticker-plugins:$versions.libticker")
-    implementation("org.jraf:libticker-httpconf:$versions.libticker")
+    implementation "org.jraf:libticker-core:$versions.libticker"
+    implementation("org.jraf:libticker-plugins:$versions.libticker", {
+        exclude group: 'io.grpc', module: 'grpc-netty-shaded'
+//        exclude group: 'io.grpc', module: 'grpc-protobuf'
+//        exclude group: 'com.google.protobuf', module: 'protobuf-java'
+    })
+    implementation "org.jraf:libticker-httpconf:$versions.libticker"
 
     // Klaxon
     implementation "com.beust:klaxon:$versions.klaxon"
@@ -165,6 +163,18 @@ dependencies {
 
     // Sunrise/sunset
     implementation "ca.rmen:lib-sunrise-sunset:$versions.sunriseSunset"
+
+    // Protobuf
+////    implementation "com.google.protobuf:protobuf-java:$versions.protobuf"
+////    implementation "com.google.protobuf:protobuf-java-util:$versions.protobuf"
+//    implementation 'io.grpc:grpc-okhttp:1.28.1'
+//    implementation 'io.grpc:grpc-protobuf-lite:1.28.1'
+//    implementation 'io.grpc:grpc-stub:1.28.1'
+
+//    implementation 'io.grpc:grpc-netty:1.28.1'
+    implementation 'io.grpc:grpc-protobuf:1.28.1'
+    implementation 'io.grpc:grpc-stub:1.28.1'
+    implementation 'io.grpc:grpc-okhttp:1.28.1'
 }
 
 // Run './gradlew countReleaseDexMethods' to see dex methods count

@@ -38,6 +38,7 @@ import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.util.Base64
+import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -67,6 +68,7 @@ import org.jraf.android.util.log.Log
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
+import kotlin.math.min
 
 typealias TickerMessage = org.jraf.libticker.message.Message
 
@@ -145,6 +147,14 @@ class MainActivity : AppCompatActivity() {
 
         updateBrightnessAndBackgroundOpacityHandler.sendEmptyMessage(0)
         checkMessageQueueHandler.sendEmptyMessage(MESSAGE_CHECK_QUEUE)
+
+        // Inform the ticker of the display size
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getRealMetrics(displayMetrics)
+        Ticker.pluginManager.globalConfiguration.run {
+            put("displayWidth", displayMetrics.widthPixels)
+            put("displayHeight", displayMetrics.heightPixels)
+        }
     }
 
     override fun onPause() {
@@ -157,7 +167,7 @@ class MainActivity : AppCompatActivity() {
     private fun adjustFontSize(tickerText: CharSequence) {
         val rect = Rect()
         window.decorView.getWindowVisibleDisplayFrame(rect)
-        val smallSide = Math.min(rect.width(), rect.height())
+        val smallSide = min(rect.width(), rect.height())
 
         // A font size of about ~1/8 to 1/10 screen small side is a sensible value for the starting font size
         var fontSize = (smallSide / 10f).toInt()
@@ -502,5 +512,5 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-// endregion
+    // endregion
 }
