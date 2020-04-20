@@ -79,7 +79,8 @@ class MainActivity : AppCompatActivity() {
         private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
         private val CHECK_QUEUE_RATE_MS = TimeUnit.SECONDS.toMillis(14)
-        private val SHOW_IMAGE_DURATION_MS = TimeUnit.SECONDS.toMillis(8)
+        private val SHOW_IMAGE_DURATION_MEDIUM_MS = TimeUnit.SECONDS.toMillis(10)
+        private val SHOW_IMAGE_DURATION_LONG_MS = TimeUnit.SECONDS.toMillis(28)
         private const val TYPEWRITER_EFFECT_DURATION_MS = 1800L
 
         private const val MESSAGE_CHECK_QUEUE = 0
@@ -270,10 +271,13 @@ class MainActivity : AppCompatActivity() {
 
                         if (newMessage.imageUri != null) {
                             // There is an image: show it now, and show the text later
-                            showImage(newMessage.imageUri!!)
+                            val isCropAllowed = newMessage.hints["image.cropAllowed"] == "true"
+                            val isLongDisplayDuration =
+                                newMessage.hints["image.displayDuration"] == "long"
+                            showImage(newMessage.imageUri!!, isCropAllowed)
                             sendMessageDelayed(
                                 Message.obtain(this, MESSAGE_SHOW_TEXT, newMessage),
-                                SHOW_IMAGE_DURATION_MS
+                                if (isLongDisplayDuration) SHOW_IMAGE_DURATION_LONG_MS else SHOW_IMAGE_DURATION_MEDIUM_MS
                             )
                         } else {
                             // Just the text: show it now
@@ -294,11 +298,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private fun showImage(imageUri: String) {
+    private fun showImage(imageUri: String, cropAllowed: Boolean) {
         Log.d("imageUri=$imageUri")
-        GlideApp.with(this)
+        var glideRequest = GlideApp.with(this)
             .load(imageUri)
-            .fitCenter()
+        glideRequest = if (cropAllowed) {
+            glideRequest.centerCrop()
+        } else {
+            glideRequest.fitCenter()
+        }
+        glideRequest
             .transition(DrawableTransitionOptions.withCrossFade())
             .listener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(

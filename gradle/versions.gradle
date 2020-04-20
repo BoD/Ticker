@@ -55,7 +55,7 @@ versions.with {
     klaxon = '5.2'
     glide = '4.11.0'
     sunriseSunset = '1.1.1'
-    protobuf = '3.11.4'
+    grpc = '1.28.1'
 }
 
 ext.versions = versions
