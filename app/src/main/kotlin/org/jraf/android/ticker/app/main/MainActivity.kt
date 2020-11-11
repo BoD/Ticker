@@ -32,6 +32,7 @@ import android.graphics.drawable.Drawable
 import android.location.Location
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.text.Html
 import android.text.Spannable
@@ -47,6 +48,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.postDelayed
 import androidx.databinding.DataBindingUtil
 import ca.rmen.sunrisesunset.SunriseSunset
 import com.bumptech.glide.load.DataSource
@@ -78,13 +80,18 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val FONT_NAME = "RobotoCondensed-Regular-No-Ligatures.ttf"
         private val UPDATE_BRIGHTNESS_RATE_MS = TimeUnit.MINUTES.toMillis(1)
+
         private val CHECK_QUEUE_RATE_MS = TimeUnit.SECONDS.toMillis(14)
+
         private val SHOW_IMAGE_DURATION_MEDIUM_MS = TimeUnit.SECONDS.toMillis(10)
         private val SHOW_IMAGE_DURATION_LONG_MS = TimeUnit.SECONDS.toMillis(28)
+        private val SHOW_MINI_TICKER_DELAY_MS = TimeUnit.SECONDS.toMillis(2)
+        private val HIDE_MINI_TICKER_DELAY_MS = TimeUnit.SECONDS.toMillis(10)
         private const val TYPEWRITER_EFFECT_DURATION_MS = 1800L
 
         private const val MESSAGE_CHECK_QUEUE = 0
         private const val MESSAGE_SHOW_TEXT = 1
+        private const val MESSAGE_HIDE_MINI_TICKER = 2
     }
 
     private lateinit var binding: MainBinding
@@ -115,7 +122,9 @@ class MainActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LOW_PROFILE)
 
         // Set the custom font
-        binding.txtTicker.typeface = Typeface.createFromAsset(assets, "fonts/$FONT_NAME")
+        val typeface = Typeface.createFromAsset(assets, "fonts/$FONT_NAME")
+        binding.txtTicker.typeface = typeface
+        binding.txtMiniTicker.typeface = typeface
 
         Ticker.messageQueue.addUrgent(
             TickerMessage(
@@ -133,6 +142,7 @@ class MainActivity : AppCompatActivity() {
                 binding.imgImage.fadeOut()
                 binding.webTicker.fadeIn()
                 binding.txtTicker.fadeOut()
+                binding.txtMiniTicker.fadeOut()
             }
         }
     }
@@ -151,7 +161,7 @@ class MainActivity : AppCompatActivity() {
 
         // Inform the ticker of the display size
         val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getRealMetrics(displayMetrics)
+        display!!.getRealMetrics(displayMetrics)
         Ticker.pluginManager.globalConfiguration.run {
             put("displayWidth", displayMetrics.widthPixels)
             put("displayHeight", displayMetrics.heightPixels)
@@ -209,6 +219,7 @@ class MainActivity : AppCompatActivity() {
     private fun setTickerText(text: String) {
         binding.imgImage.fadeOut()
         binding.webTicker.fadeOut()
+        binding.txtMiniTicker.fadeOut()
         binding.txtTicker.fadeIn()
 
         @Suppress("DEPRECATION")
@@ -258,7 +269,7 @@ class MainActivity : AppCompatActivity() {
      */
     private val checkMessageQueueHandler =
         @SuppressLint("HandlerLeak")
-        object : Handler() {
+        object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(message: Message) {
                 when (message.what) {
                     MESSAGE_CHECK_QUEUE -> {
@@ -270,15 +281,19 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         if (newMessage.imageUri != null) {
-                            // There is an image: show it now, and show the text later
+                            // There is an image: show it now, and show the text later (unless hint to show it on top of image is present)
                             val isCropAllowed = newMessage.hints["image.cropAllowed"] == "true"
-                            val isLongDisplayDuration =
-                                newMessage.hints["image.displayDuration"] == "long"
-                            showImage(newMessage.imageUri!!, isCropAllowed)
-                            sendMessageDelayed(
-                                Message.obtain(this, MESSAGE_SHOW_TEXT, newMessage),
-                                if (isLongDisplayDuration) SHOW_IMAGE_DURATION_LONG_MS else SHOW_IMAGE_DURATION_MEDIUM_MS
-                            )
+                            val isLongDisplayDuration = newMessage.hints["image.displayDuration"] == "long"
+                            val showTextOnTopOfImage = newMessage.hints["text.showOnTopOfImage"] == "true"
+                            if (showTextOnTopOfImage) {
+                                showImage(newMessage.imageUri!!, isCropAllowed, newMessage.text)
+                            } else {
+                                showImage(newMessage.imageUri!!, isCropAllowed, null)
+                                sendMessageDelayed(
+                                    Message.obtain(this, MESSAGE_SHOW_TEXT, newMessage),
+                                    if (isLongDisplayDuration) SHOW_IMAGE_DURATION_LONG_MS else SHOW_IMAGE_DURATION_MEDIUM_MS
+                                )
+                            }
                         } else {
                             // Just the text: show it now
                             showMessageText(newMessage)
@@ -294,14 +309,15 @@ class MainActivity : AppCompatActivity() {
                         // Reschedule
                         sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, CHECK_QUEUE_RATE_MS)
                     }
+
+                    MESSAGE_HIDE_MINI_TICKER -> binding.txtMiniTicker.fadeOut()
                 }
             }
         }
 
-    private fun showImage(imageUri: String, cropAllowed: Boolean) {
-        Log.d("imageUri=$imageUri")
-        var glideRequest = GlideApp.with(this)
-            .load(imageUri)
+    private fun showImage(imageUri: String, cropAllowed: Boolean, text: String?) {
+        Log.d("imageUri=$imageUri cropAllowed=$cropAllowed text=$text")
+        var glideRequest = GlideApp.with(this).load(imageUri)
         glideRequest = if (cropAllowed) {
             glideRequest.centerCrop()
         } else {
@@ -331,6 +347,16 @@ class MainActivity : AppCompatActivity() {
                     binding.imgImage.visibility = View.VISIBLE
                     binding.imgImage.alpha = 1F
                     binding.imgImage.setImageDrawable(null)
+
+                    if (text == null) {
+                        binding.txtMiniTicker.visibility = View.GONE
+                    } else {
+                        binding.txtMiniTicker.postDelayed(SHOW_MINI_TICKER_DELAY_MS) {
+                            binding.txtMiniTicker.fadeIn()
+                            binding.txtMiniTicker.text = text
+                            checkMessageQueueHandler.sendEmptyMessageDelayed(MESSAGE_HIDE_MINI_TICKER, HIDE_MINI_TICKER_DELAY_MS)
+                        }
+                    }
                     return false
                 }
             })
@@ -342,6 +368,7 @@ class MainActivity : AppCompatActivity() {
     // region Brightness and background opacity.
     //--------------------------------------------------------------------------
 
+    @SuppressLint("ClickableViewAccessibility")
     private val adjustBrightnessAndBackgroundOpacityOnTouchListener =
         View.OnTouchListener { v, event ->
             var y = event.y
@@ -450,7 +477,7 @@ class MainActivity : AppCompatActivity() {
      */
     private val updateBrightnessAndBackgroundOpacityHandler =
         @SuppressLint("HandlerLeak")
-        object : Handler() {
+        object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(message: Message) {
                 if (isDay()) {
                     setBrightness(mainPrefs.brightnessDay)

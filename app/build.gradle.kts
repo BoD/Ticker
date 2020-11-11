@@ -142,11 +142,8 @@ dependencies {
     implementation("androidx.appcompat", "appcompat", Versions.ANDROIDX_APPCOMPAT)
     implementation("androidx.emoji", "emoji-bundled", Versions.ANDROIDX_EMOJI)
     implementation("androidx.multidex", "multidex", Versions.ANDROIDX_MULTIDEX)
-    implementation(
-        "androidx.constraintlayout",
-        "constraintlayout",
-        Versions.ANDROIDX_CONSTRAINT_LAYOUT
-    )
+    implementation("androidx.constraintlayout", "constraintlayout", Versions.ANDROIDX_CONSTRAINT_LAYOUT)
+    implementation("androidx.core", "core-ktx", Versions.ANDROIDX_CORE_KTX)
 
     // Material
     implementation("com.google.android.material", "material", Versions.MATERIAL)

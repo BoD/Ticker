@@ -38,7 +38,7 @@ fun View.fadeOut() {
 }
 
 fun View.fadeIn() {
-    if (visibility != View.GONE) return
+    if (visibility == View.VISIBLE) return
     alpha = 0F
     visibility = View.VISIBLE
     animate().alpha(1F).setListener(null)

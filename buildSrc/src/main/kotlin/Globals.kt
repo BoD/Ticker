@@ -10,6 +10,7 @@ object Versions {
     const val ANDROIDX_EMOJI = "1.1.0"
     const val ANDROIDX_MULTIDEX = "2.0.1"
     const val ANDROIDX_CONSTRAINT_LAYOUT = "2.0.4"
+    const val ANDROIDX_CORE_KTX = "1.3.2"
     const val MATERIAL = "1.2.1"
     const val RX_JAVA = "2.2.20"
     const val RX_KOTLIN = "2.4.0"
