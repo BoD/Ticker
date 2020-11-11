@@ -1,7 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-if (buildProperties.enableFabric.toBoolean()) apply plugin: 'io.fabric'
 apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
@@ -131,11 +130,6 @@ dependencies {
     implementation "androidx.emoji:emoji-bundled:$versions.androidXEmoji"
     implementation "androidx.multidex:multidex:$versions.androidXMultidex"
     implementation "androidx.constraintlayout:constraintlayout:$versions.androidXConstraintLayout"
-
-    // Fabric / Crashlytics
-    implementation("com.crashlytics.sdk.android:crashlytics:$versions.crashlytics@aar") {
-        transitive = true
-    }
 
     // JRAF
     implementation "org.jraf:kprefs:$versions.kprefs"

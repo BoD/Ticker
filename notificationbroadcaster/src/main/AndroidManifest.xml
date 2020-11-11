@@ -9,11 +9,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- Crashlytics api key -->
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="${apiKeyFabric}" />
-
         <service
             android:name=".app.notification.NotificationListenerService"
             android:label="@string/app_name"

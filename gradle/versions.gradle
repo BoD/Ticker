@@ -4,11 +4,10 @@ def versions = [:]
 // Plugins
 def plugins = [:]
 plugins.with {
-    androidGradle = '3.6.3'
-    gradleVersions = '0.28.0'
-    fabric = '1.31.2'
-    dexCount = '1.0.2'
-    gmsStrictVersionMatcher = '1.2.1'
+    androidGradle = '4.1.1'
+    gradleVersions = '0.36.0'
+    dexCount = '2.0.0'
+    gmsStrictVersionMatcher = '1.2.2'
 }
 versions.plugins = plugins
 
@@ -22,9 +21,9 @@ versions.libs = libs
 // Build parameters
 def build = [:]
 build.with {
-    gradle = '6.3'
-    compileSdk = 29
-    targetSdk = 29
+    gradle = '6.7'
+    compileSdk = 30
+    targetSdk = 30
     minSdk = 19
 }
 versions.build = build
@@ -32,30 +31,30 @@ versions.build = build
 // Testing dependencies
 def testing = [:]
 testing.with {
-    espresso = '3.2.0'
-    junit = '4.13'
+    espresso = '3.3.0'
+    junit = '4.13.1'
 }
 versions.testing = testing
 
 // Other dependencies
 versions.with {
-    kotlin = '1.3.71'
-    androidXAppcompat = '1.1.0'
-    androidXEmoji = '1.0.0'
+    kotlin = '1.4.10'
+    androidXAppcompat = '1.2.0'
+    androidXEmoji = '1.1.0'
     androidXMultidex = '2.0.1'
-    androidXConstraintLayout = '1.1.3'
-    material = '1.1.0'
-    rxJava = '2.2.19'
+    androidXConstraintLayout = '2.0.4'
+    material = '1.2.1'
+    rxJava = '2.2.20'
     rxKotlin = '2.4.0'
     crashlytics = '2.10.1'
-    kprefs = '1.1.0'
-    libticker = '1.5.0'
+    kprefs = '1.6.0'
+    libticker = '1.5.1'
     multidex = '1.0.3'
     slf4j = '1.7.30'
-    klaxon = '5.2'
+    klaxon = '5.4'
     glide = '4.11.0'
     sunriseSunset = '1.1.1'
-    grpc = '1.28.1'
+    grpc = '1.33.1'
 }
 
 ext.versions = versions

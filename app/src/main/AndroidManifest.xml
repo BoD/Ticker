@@ -18,11 +18,6 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:targetApi="n">
 
-        <!-- Fabric/Crashlytics api key -->
-        <meta-data
-            android:name="io.fabric.ApiKey"
-            android:value="${apiKeyFabric}" />
-
         <activity
             android:name=".app.main.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
