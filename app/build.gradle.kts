@@ -45,7 +45,7 @@ android {
 
     buildTypes {
         getByName("debug") {
-            applicationIdSuffix = ".debug"
+//            applicationIdSuffix = ".debug"
 
             buildConfigField("String", "GIT_SHA1", "\"dev\"")
             buildConfigField("String", "BUILD_DATE", "\"dev\"")

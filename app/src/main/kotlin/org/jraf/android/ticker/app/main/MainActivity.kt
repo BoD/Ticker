@@ -161,7 +161,8 @@ class MainActivity : AppCompatActivity() {
 
         // Inform the ticker of the display size
         val displayMetrics = DisplayMetrics()
-        display!!.getRealMetrics(displayMetrics)
+        @Suppress("DEPRECATION")
+        windowManager.defaultDisplay.getRealMetrics(displayMetrics)
         Ticker.pluginManager.globalConfiguration.run {
             put("displayWidth", displayMetrics.widthPixels)
             put("displayHeight", displayMetrics.heightPixels)
