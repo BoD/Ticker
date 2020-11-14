@@ -286,13 +286,17 @@ class MainActivity : AppCompatActivity() {
                             val isCropAllowed = newMessage.hints["image.cropAllowed"] == "true"
                             val isLongDisplayDuration = newMessage.hints["image.displayDuration"] == "long"
                             val showTextOnTopOfImage = newMessage.hints["text.showOnTopOfImage"] == "true"
+                            val delay = if (isLongDisplayDuration) SHOW_IMAGE_DURATION_LONG_MS else SHOW_IMAGE_DURATION_MEDIUM_MS
                             if (showTextOnTopOfImage) {
                                 showImage(newMessage.imageUri!!, isCropAllowed, newMessage.text)
+                                // Reschedule
+                                sendEmptyMessageDelayed(MESSAGE_CHECK_QUEUE, delay)
                             } else {
                                 showImage(newMessage.imageUri!!, isCropAllowed, null)
+                                // Show the text later
                                 sendMessageDelayed(
                                     Message.obtain(this, MESSAGE_SHOW_TEXT, newMessage),
-                                    if (isLongDisplayDuration) SHOW_IMAGE_DURATION_LONG_MS else SHOW_IMAGE_DURATION_MEDIUM_MS
+                                    delay
                                 )
                             }
                         } else {
